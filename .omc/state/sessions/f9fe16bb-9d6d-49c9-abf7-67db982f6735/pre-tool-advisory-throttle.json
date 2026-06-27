@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "entries": {
+    "79a93d4a2f8f50b95f852280616242fee1855dc99a3c75211917f55e72e95fae": {
+      "last_emitted_at_ms": 1782576953047,
+      "message": "Use parallel execution for independent tasks. Use run_in_background for long operations (npm install, builds, tests)."
+    },
+    "1bb6914bc42b891c26d46c8ae2fd4f44071f59862e89dc550f4c82877b700216": {
+      "last_emitted_at_ms": 1782576929876,
+      "message": "The boulder never stops. Continue until all tasks complete."
+    },
+    "7b2413e65b55f160f799f1bdab42f5f1f5112bac644ff2b54038c49c74cc0a96": {
+      "last_emitted_at_ms": 1782576764377,
+      "message": "Spawning agent: oh-my-claudecode:architect (opus) | Task: Verify PRD 02 scaffold"
+    },
+    "445ed27a3872b681d98190bae61ccb84954e1bc4e140df5370be958dee776b3a": {
+      "last_emitted_at_ms": 1782576743095,
+      "message": "Verify changes work after editing. Test functionality before marking complete."
+    },
+    "466399dafa2d20f60587180bad0a07358eb7f2bce724df0ff682f038ad33f5ad": {
+      "last_emitted_at_ms": 1782576724280,
+      "message": "Read multiple files in parallel when possible for faster analysis."
+    },
+    "51bc309826475d537f6151d127747141f2d03eb6ebcc67f5ac9ce058e3e48b9c": {
+      "last_emitted_at_ms": 1782576429361,
+      "message": "Spawning agent: oh-my-claudecode:executor (opus) | Task: Scaffold @remocn/render-sdk package"
+    }
+  },
+  "updated_at": "2026-06-27T16:15:53.047Z"
+}

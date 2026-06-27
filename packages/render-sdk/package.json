@@ -1,0 +1,38 @@
+{
+  "name": "@remocn/render-sdk",
+  "version": "0.0.0",
+  "description": "Backend-swappable render engine for Remotion (server + AWS Lambda).",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "files": ["dist", "README.md"],
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./server": { "types": "./dist/server/index.d.ts", "import": "./dist/server/index.js" },
+    "./lambda": { "types": "./dist/lambda/index.d.ts", "import": "./dist/lambda/index.js" }
+  },
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "dev": "bun run scripts/build.ts --watch",
+    "test": "bun test",
+    "types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "p-limit": "^6.1.0"
+  },
+  "peerDependencies": {
+    "@remotion/renderer": ">=4.0.0",
+    "@remotion/lambda": ">=4.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@remotion/renderer": { "optional": true },
+    "@remotion/lambda": { "optional": true }
+  },
+  "devDependencies": {
+    "@remotion/renderer": ">=4.0.0",
+    "@remotion/lambda": ">=4.0.0",
+    "@types/bun": "latest",
+    "typescript": "^6.0.3"
+  },
+  "publishConfig": { "access": "public" }
+}

@@ -42,8 +42,8 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "npm run build",
-    "testCommand": null,
+    "buildCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk\necho \"===TYPES===\" && bun run types > /dev/null 2>&1; echo \"types: $?\"\necho \"===BUILD===\" && bun run build > /dev/null 2>&1; echo \"build: $?\"\necho \"===TEST===\" && bun test > /tmp/rt.log 2>&1; echo \"test: $?\"; grep -E \"pass|fail\" /tmp/rt.log | tail -2\necho \"===DIST===\" && find dist -type f | wc -l | tr -d ' '; echo \"dist files (expect 6)\"\necho \"===IMPORT===\" && cd .. && cd .. && node --input-type=module -e \"import('./packages/render-sdk/dist/index.js').then(m=>console.log('VERSION='+m.VERSION))\"",
+    "testCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk\necho \"===TYPES===\" && bun run types > /dev/null 2>&1; echo \"types: $?\"\necho \"===BUILD===\" && bun run build > /dev/null 2>&1; echo \"build: $?\"\necho \"===TEST===\" && bun test > /tmp/rt.log 2>&1; echo \"test: $?\"; grep -E \"pass|fail\" /tmp/rt.log | tail -2\necho \"===DIST===\" && find dist -type f | wc -l | tr -d ' '; echo \"dist files (expect 6)\"\necho \"===IMPORT===\" && cd .. && cd .. && node --input-type=module -e \"import('./packages/render-sdk/dist/index.js').then(m=>console.log('VERSION='+m.VERSION))\"",
     "lintCommand": null,
     "devCommand": "npm run dev",
     "scripts": {
@@ -151,6 +151,48 @@
       "type": "file"
     },
     {
+      "path": "progress.txt",
+      "accessCount": 4,
+      "lastAccessed": 1782576743229,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/package.json",
+      "accessCount": 3,
+      "lastAccessed": 1782576772960,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/tsconfig.json",
+      "accessCount": 3,
+      "lastAccessed": 1782576773448,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/bunfig.toml",
+      "accessCount": 3,
+      "lastAccessed": 1782576774857,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/index.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782576783049,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/server/index.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782576783655,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/lambda/index.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782576784533,
+      "type": "file"
+    },
+    {
       "path": "tsconfig.json",
       "accessCount": 2,
       "lastAccessed": 1782575607467,
@@ -187,9 +229,9 @@
       "type": "file"
     },
     {
-      "path": "progress.txt",
-      "accessCount": 1,
-      "lastAccessed": 1782575771310,
+      "path": "packages/render-sdk/README.md",
+      "accessCount": 2,
+      "lastAccessed": 1782576553049,
       "type": "file"
     }
   ],
