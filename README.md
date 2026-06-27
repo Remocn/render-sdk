@@ -47,13 +47,13 @@ Your application code calls `start` / `getState` / `getUrl` / `download` / `wait
 
 |  |  |
 | --- | --- |
-| 🔁 **Swap backends in one line** | The same code drives local rendering and AWS Lambda. Start on a box, scale to the cloud — no rewrite. |
-| 🧊 **Remotion-free core** | Types, handles, codecs and errors carry **zero** `@remotion/*` imports. `@remotion/renderer` / `@remotion/lambda` are *optional peer deps* of the adapters only — pull the types without installing Remotion at all. |
-| 🛟 **Fully typed, no casts** | `start`'s options argument auto-narrows to the chosen adapter. Passing a Lambda-only option to the server adapter is a **compile error**, not a runtime surprise. |
-| ⏳ **Progress, the easy way** | `waitForCompletion` polls for you with `onProgress`, `timeoutMs` and `AbortSignal` support — perfect for CLIs, cron jobs and Lambda pollers. |
-| 🚦 **Built-in concurrency limit** | The server adapter bounds in-flight renders with `p-limit` so a burst of jobs can't melt your box. Extra jobs stay `queued` until a slot frees. |
-| 🗃️ **Pluggable state store** | Progress lives behind a tiny `StateStore` SPI. Ships with an `InMemoryStore`; swap in Redis or SQL later without touching the SDK. |
-| 📤 **Unified output access** | `getUrl` and `download` return a public URL and a web `ReadableStream` whether the file sits on local disk or in S3. |
+| **Swap backends in one line** | The same code drives local rendering and AWS Lambda. Start on a box, scale to the cloud — no rewrite. |
+| **Remotion-free core** | Types, handles, codecs and errors carry **zero** `@remotion/*` imports. `@remotion/renderer` / `@remotion/lambda` are *optional peer deps* of the adapters only — pull the types without installing Remotion at all. |
+| **Fully typed, no casts** | `start`'s options argument auto-narrows to the chosen adapter. Passing a Lambda-only option to the server adapter is a **compile error**, not a runtime surprise. |
+| **Progress, the easy way** | `waitForCompletion` polls for you with `onProgress`, `timeoutMs` and `AbortSignal` support — perfect for CLIs, cron jobs and Lambda pollers. |
+| **Built-in concurrency limit** | The server adapter bounds in-flight renders with `p-limit` so a burst of jobs can't melt your box. Extra jobs stay `queued` until a slot frees. |
+| **Pluggable state store** | Progress lives behind a tiny `StateStore` SPI. Ships with an `InMemoryStore`; swap in Redis or SQL later without touching the SDK. |
+| **Unified output access** | `getUrl` and `download` return a public URL and a web `ReadableStream` whether the file sits on local disk or in S3. |
 
 ## Install
 
