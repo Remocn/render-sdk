@@ -52,6 +52,9 @@ function rejectMalformedLambdaHandle(parts, handle) {
 function rejectUnknownAdapterTag(handle) {
   throw new RenderError("not_found", `Unknown handle adapter tag: ${handle}`);
 }
+function classifyRenderError(message) {
+  return /version/i.test(message) && /match/i.test(message) ? "version_mismatch" : "render_failed";
+}
 
 // src/handle.ts
 var DELIMITER = "~";
@@ -110,9 +113,6 @@ function clamp01(n) {
   if (Number.isNaN(n))
     return 0;
   return Math.min(1, Math.max(0, n));
-}
-function classifyRenderError(message) {
-  return /version/i.test(message) && /match/i.test(message) ? "version_mismatch" : "render_failed";
 }
 function RenderServer(config) {
   const store = config.store ?? InMemoryStore();

@@ -1,0 +1,62 @@
+{
+  "title": "PRD 07 \u2014 Lambda Adapter (@remocn/render-sdk/lambda)",
+  "source": ".omc/plans/07-lambda-adapter.md",
+  "stories": [
+    {
+      "id": "US-07-1",
+      "title": "RenderLambda adapter: config, options, start",
+      "passes": true,
+      "acceptanceCriteria": [
+        "src/lambda/index.ts exports RenderLambda(config: LambdaConfig): RenderAdapter<LambdaOptions>",
+        "LambdaConfig has region (AwsRegion), functionName, serveUrl; LambdaOptions has framesPerLambda?, webhook?, privacy?, outName?, maxRetries?",
+        "start() calls renderMediaOnLambda exactly once with region/functionName/serveUrl/composition=compositionId/codec(default h264)/inputProps + forwarded options",
+        "start() returns a handle that round-trips through decodeHandle to {adapter:'lambda', renderId, bucket, ext} where bucket=bucketName and ext=extForCodec(codec)",
+        "No StateStore / p-limit anywhere in the lambda path (renders fire immediately)"
+      ]
+    },
+    {
+      "id": "US-07-2",
+      "title": "getState maps getRenderProgress per the \u00a74 table",
+      "passes": true,
+      "acceptanceCriteria": [
+        "getState decodes the handle and calls getRenderProgress({renderId, bucketName:bucket, functionName, region})",
+        "done===true => {status:'done', progress:1}",
+        "fatalErrorEncountered===true => {status:'error', progress:overallProgress, error:errors[0]?.message}",
+        "overallProgress>0 (not done, no fatal) => {status:'rendering', progress:overallProgress}",
+        "otherwise => {status:'queued', progress:0}"
+      ]
+    },
+    {
+      "id": "US-07-3",
+      "title": "getUrl + download from S3",
+      "passes": true,
+      "acceptanceCriteria": [
+        "getUrl returns progress.outputFile (the S3 URL) when present",
+        "getUrl throws RenderError('not_found') when outputFile is null (render not ready)",
+        "download fetches getUrl and returns response.body as a web ReadableStream",
+        "download throws RenderError('adapter_error') on a non-ok fetch / missing body"
+      ]
+    },
+    {
+      "id": "US-07-4",
+      "title": "Version-mismatch mapping + error classification",
+      "passes": true,
+      "acceptanceCriteria": [
+        "A Remotion version error thrown by renderMediaOnLambda is rethrown as RenderError with code 'version_mismatch'",
+        "Other renderMediaOnLambda failures are rethrown as RenderError with code 'render_failed'",
+        "The original error is preserved via the cause option"
+      ]
+    },
+    {
+      "id": "US-07-5",
+      "title": "Type-guard + integration + build",
+      "passes": true,
+      "acceptanceCriteria": [
+        "A type-guard test proves our Codec union is assignable to @remotion/lambda's ServerlessCodec",
+        "RenderLambda plugs into RenderSdk with options auto-typed; passing chromiumOptions is a compile error (@ts-expect-error)",
+        "bun run types => 0 errors; bun run build succeeds; dist/lambda/index.js keeps @remotion/lambda external (0 internals bundled)",
+        "bun test => all pass (server suite 56 + new lambda tests), 0 fail"
+      ]
+    }
+  ]
+}
