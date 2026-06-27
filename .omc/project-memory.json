@@ -42,8 +42,8 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk\necho \"===TYPES===\" && bun run types > /dev/null 2>&1; echo \"types: $?\"\necho \"===BUILD===\" && bun run build > /dev/null 2>&1; echo \"build: $?\"\necho \"===TEST===\" && bun test > /tmp/rt.log 2>&1; echo \"test: $?\"; grep -E \"pass|fail\" /tmp/rt.log | tail -2\necho \"===DIST===\" && find dist -type f | wc -l | tr -d ' '; echo \"dist files (expect 6)\"\necho \"===IMPORT===\" && cd .. && cd .. && node --input-type=module -e \"import('./packages/render-sdk/dist/index.js').then(m=>console.log('VERSION='+m.VERSION))\"",
-    "testCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk\necho \"===TYPES===\" && bun run types > /dev/null 2>&1; echo \"types: $?\"\necho \"===BUILD===\" && bun run build > /dev/null 2>&1; echo \"build: $?\"\necho \"===TEST===\" && bun test > /tmp/rt.log 2>&1; echo \"test: $?\"; grep -E \"pass|fail\" /tmp/rt.log | tail -2\necho \"===DIST===\" && find dist -type f | wc -l | tr -d ' '; echo \"dist files (expect 6)\"\necho \"===IMPORT===\" && cd .. && cd .. && node --input-type=module -e \"import('./packages/render-sdk/dist/index.js').then(m=>console.log('VERSION='+m.VERSION))\"",
+    "buildCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk && npx tsc --noEmit 2>&1",
+    "testCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk\necho \"===TYPES===\" && bun run types > /tmp/rt_types.log 2>&1; echo \"types: $?\"; tail -8 /tmp/rt_types.log\necho \"===BUILD===\" && bun run build > /tmp/rt_build.log 2>&1; echo \"build: $?\"\necho \"===TEST===\" && bun test > /tmp/rt_test.log 2>&1; echo \"test: $?\"; grep -E \"[0-9]+ pass|[0-9]+ fail\" /tmp/rt_test.log | tail -3\necho \"===DIST COUNT===\" && find dist -type f | wc -l | tr -d ' '\necho \"===GREP @remotion ALL DIST===\" && grep -rl \"@remotion\" dist || echo \"none reference @remotion\"\necho \"===RUNTIME IMPORT===\" && cd /Users/dev_wandry/projects/opensource/remocn-render-sdk && node --input-type=module -e \"\nimport('./packages/render-sdk/dist/index.js').then(m => {\n  const h = m.encodeServerHandle('abc');\n  const d = m.decodeHandle(h);\n  console.log('decode:', JSON.stringify(d));\n  console.log('ext:', m.extForCodec());\n  console.log('err instanceof Error:', new m.RenderError('not_found','x') instanceof Error);\n  console.log('VERSION:', m.VERSION);\n});\"",
     "lintCommand": null,
     "devCommand": "npm run dev",
     "scripts": {
@@ -139,6 +139,24 @@
   },
   "hotPaths": [
     {
+      "path": "packages/render-sdk/src/index.ts",
+      "accessCount": 8,
+      "lastAccessed": 1782579016989,
+      "type": "file"
+    },
+    {
+      "path": "progress.txt",
+      "accessCount": 6,
+      "lastAccessed": 1782578690423,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/handle.ts",
+      "accessCount": 5,
+      "lastAccessed": 1782579221813,
+      "type": "file"
+    },
+    {
       "path": "package.json",
       "accessCount": 4,
       "lastAccessed": 1782575991233,
@@ -151,9 +169,15 @@
       "type": "file"
     },
     {
-      "path": "progress.txt",
+      "path": "packages/render-sdk/src/lambda/index.ts",
       "accessCount": 4,
-      "lastAccessed": 1782576743229,
+      "lastAccessed": 1782578465119,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/server/index.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782578465870,
       "type": "file"
     },
     {
@@ -175,21 +199,21 @@
       "type": "file"
     },
     {
-      "path": "packages/render-sdk/src/index.ts",
+      "path": "packages/render-sdk/test/handle.test.ts",
       "accessCount": 3,
-      "lastAccessed": 1782576783049,
+      "lastAccessed": 1782578742979,
       "type": "file"
     },
     {
-      "path": "packages/render-sdk/src/server/index.ts",
+      "path": "packages/render-sdk/src/errors.ts",
       "accessCount": 3,
-      "lastAccessed": 1782576783655,
+      "lastAccessed": 1782579023349,
       "type": "file"
     },
     {
-      "path": "packages/render-sdk/src/lambda/index.ts",
+      "path": "packages/render-sdk/src/types.ts",
       "accessCount": 3,
-      "lastAccessed": 1782576784533,
+      "lastAccessed": 1782579023649,
       "type": "file"
     },
     {
@@ -232,6 +256,48 @@
       "path": "packages/render-sdk/README.md",
       "accessCount": 2,
       "lastAccessed": 1782576553049,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/codecs.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782578434191,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/adapter.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782578434569,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/test/codecs.test.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782578439813,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/test/errors.test.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782578439903,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/store/types.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782579010226,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/store/in-memory.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782579010424,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/test/in-memory.test.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782579017800,
       "type": "file"
     },
     {

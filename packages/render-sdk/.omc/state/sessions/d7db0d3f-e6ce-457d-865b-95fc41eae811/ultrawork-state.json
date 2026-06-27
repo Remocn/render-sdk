@@ -1,0 +1,11 @@
+{
+  "active": true,
+  "started_at": "2026-06-27T16:48:00.863Z",
+  "original_prompt": "/oh-my-claudecode:ralph переходи к следующему PRD",
+  "session_id": "d7db0d3f-e6ce-457d-865b-95fc41eae811",
+  "project_path": "/Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk",
+  "reinforcement_count": 0,
+  "awaiting_confirmation": true,
+  "awaiting_confirmation_set_at": "2026-06-27T16:48:00.863Z",
+  "last_checked_at": "2026-06-27T16:48:00.863Z"
+}
