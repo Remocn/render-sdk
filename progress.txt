@@ -159,3 +159,56 @@ plus the default Map-backed InMemoryStore. Remotion-free, sync-in/async-out.
   callers must go through update() to persist mutations.
 - Next: PR 05 (RenderSdk + waitForCompletion) wires the default InMemoryStore; PR 06 (server
   adapter) writes RenderRecords. Both import StateStore/RenderRecord — do not redefine.
+
+## PRD 05 — RenderSdk + waitForCompletion — DONE (session a236fb66)
+
+### What was implemented
+The public `RenderSdk<A>` facade + the adapter-agnostic `waitForCompletion` poll loop. Both
+remotion-free, verified against fake/scripted in-memory adapters (no real backend yet).
+
+### Files created (packages/render-sdk/src/)
+- `wait.ts`: standalone `waitForCompletion(adapter: Pick<RenderAdapter<unknown>,"getState">,
+  handle, opts?)`. `for(;;)` poll loop: checks signal -> getState -> onProgress(progress) ->
+  done returns final state / error throws RenderError("render_failed", state.error ?? "Render
+  failed") / past deadline throws RenderError("timeout") -> abortableDelay(min(intervalMs,
+  deadline-now), signal). `abortableDelay` is a setTimeout wrapped in a Promise with a once
+  "abort" listener that clearTimeouts + rejects RenderError("adapter_error","aborted") — this is
+  what makes abort interrupt MID-WAIT, not just between polls. DEFAULT_INTERVAL_MS = 1000.
+- `sdk.ts`: `class RenderSdk<A extends RenderAdapter<any>>`, ctor({ adapter, store? }) stores both
+  as readonly fields. start(input, options?: OptionsOf<A>) / getState / getUrl / download are
+  one-line delegations to this.adapter; waitForCompletion(handle, opts?) delegates to the
+  standalone loop with this.adapter. Exports `RenderSdkConfig<A>` type. The SDK never reads/writes
+  the store — it only holds it for adapters (server adapter, PR 06, will use it).
+- `index.ts`: added `export { RenderSdk, type RenderSdkConfig } from "./sdk"` and
+  `export { waitForCompletion } from "./wait"`.
+
+### Tests (test/)
+- `wait.test.ts`: scripted getState-only adapter (queued->rendering(.5)->done) asserts onProgress
+  [0,.5,1] + resolution; separate cases throw render_failed on error, timeout on timeoutMs, abort
+  mid-wait via AbortController, and immediate reject on already-aborted AbortSignal.abort().
+- `sdk.test.ts`: fakeAdapter records a discriminated `Call[]`; verifies all 5 methods delegate,
+  store is held (sdk.store === store) but untouched (store.get null after start), store optional,
+  and a `@ts-expect-error` case proving `start`'s 2nd arg narrows to OptionsOf<A> (wrong-shape
+  `{ chromiumOptions: {} }` fails to compile).
+
+### Verification evidence (all exit 0)
+- `bun run types` (tsc --noEmit): 0 errors. `bun run build`: succeeded; dist now 15 files
+  (+sdk.{js,d.ts}, +wait.{js,d.ts}). `bun test`: 39 pass, 0 fail (was 28). `grep -rl @remotion
+  dist`: none. Architect reviewer: APPROVED against all PRD-05 acceptance criteria. Deslop pass:
+  removed one redundant monotonic assertion in wait.test.ts; post-deslop regression still 39 pass.
+
+### Learnings / patterns for future PRDs
+- `@ts-expect-error` IS the type-narrowing test: because tsc errors on an UNUSED @ts-expect-error
+  directive, a green `bun run types` proves the wrong-shape option genuinely fails to compile. No
+  separate expectTypeOf/.test-d harness needed — the directive self-verifies under the existing
+  types gate (test/ is in tsconfig include).
+- waitForCompletion is intentionally `Pick<RenderAdapter,"getState">`, not the full adapter — keeps
+  it trivially testable with a one-method fake and documents that polling only needs getState.
+- Error contract is THROW (not resolve): done -> resolve(state); error -> throw render_failed;
+  timeout -> throw timeout; abort -> throw adapter_error/"aborted". getState itself always resolves
+  a state object; the loop is what converts terminal states into resolve/throw.
+- RenderSdk is a pure thin delegator: it holds `store` but never calls it. Store writes are owned by
+  the server adapter (PR 06), which receives the store via its OWN config, not via the SDK. Confirm
+  this wiring direction when implementing PR 06 — do not make the SDK seed the store.
+- Next: PR 06 (server adapter, depends 03/04/05) + PR 07 (lambda adapter, depends 03/05) are now
+  unblocked and independent — parallel branches. Both plug into a real `new RenderSdk({ adapter })`.

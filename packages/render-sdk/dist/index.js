@@ -92,15 +92,83 @@ function InMemoryStore() {
     }
   };
 }
+// src/wait.ts
+var DEFAULT_INTERVAL_MS = 1000;
+function abortableDelay(ms, signal) {
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(new RenderError("adapter_error", "aborted"));
+      return;
+    }
+    const timer = setTimeout(() => {
+      signal?.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(new RenderError("adapter_error", "aborted"));
+    };
+    signal?.addEventListener("abort", onAbort, { once: true });
+  });
+}
+async function waitForCompletion(adapter, handle, opts = {}) {
+  const { onProgress, intervalMs = DEFAULT_INTERVAL_MS, signal, timeoutMs } = opts;
+  const deadline = timeoutMs === undefined ? undefined : Date.now() + timeoutMs;
+  for (;; ) {
+    if (signal?.aborted) {
+      throw new RenderError("adapter_error", "aborted");
+    }
+    const state = await adapter.getState(handle);
+    onProgress?.(state.progress);
+    if (state.status === "done") {
+      return state;
+    }
+    if (state.status === "error") {
+      throw new RenderError("render_failed", state.error ?? "Render failed");
+    }
+    if (deadline !== undefined && Date.now() >= deadline) {
+      throw new RenderError("timeout", `Render timed out after ${timeoutMs}ms`);
+    }
+    const wait = deadline === undefined ? intervalMs : Math.min(intervalMs, deadline - Date.now());
+    await abortableDelay(Math.max(0, wait), signal);
+  }
+}
+
+// src/sdk.ts
+class RenderSdk {
+  adapter;
+  store;
+  constructor(config) {
+    this.adapter = config.adapter;
+    this.store = config.store;
+  }
+  start(input, options) {
+    return this.adapter.start(input, options);
+  }
+  getState(handle) {
+    return this.adapter.getState(handle);
+  }
+  getUrl(handle) {
+    return this.adapter.getUrl(handle);
+  }
+  download(handle) {
+    return this.adapter.download(handle);
+  }
+  waitForCompletion(handle, opts) {
+    return waitForCompletion(this.adapter, handle, opts);
+  }
+}
 
 // src/index.ts
 var VERSION = "0.0.0";
 export {
+  waitForCompletion,
   extForCodec,
   encodeServerHandle,
   encodeLambdaHandle,
   decodeHandle,
   VERSION,
+  RenderSdk,
   RenderError,
   InMemoryStore,
   CODEC_EXT
