@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk && echo \\\"=== externals smoke test: temp src importing node:fs + node builtins ===\\\" && cat > /tmp/ext-probe....",
+  "error": "Exit code 2\n=== externals smoke test: temp src importing node:fs + node builtins ===\nsuccess true\n---- probe output ----\n// ../../../../../../../private/tmp/probe-src/index.ts\nimport { readFileSync } from \"node:fs\";\nimport pLimit from \"p-limit\";\nimport { createReadStream } from \"fs\";\nvar x = [readFileSync, pLimit, createReadStream];\nexport {\n  x\n};\n=== workspace name resolve from root ===\nnode:internal/modules/cjs/loader:620\n    throw e;\n    ^\n\nError [ERR_PACKAGE_PATH_NOT_EXPORTED]: No \"exports\"...",
+  "timestamp": "2026-06-27T16:13:56.729Z",
+  "retry_count": 1
+}

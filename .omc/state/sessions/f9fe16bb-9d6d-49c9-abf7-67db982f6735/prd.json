@@ -1,0 +1,77 @@
+{
+  "title": "PRD 02 — Package Scaffold + Build Tooling",
+  "source": ".omc/plans/02-package-scaffold.md",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "packages/render-sdk/package.json with subpath exports + optional peers",
+      "priority": 1,
+      "passes": true,
+      "acceptanceCriteria": [
+        "packages/render-sdk/package.json has name '@remocn/render-sdk', version '0.0.0', type 'module', sideEffects false, license MIT",
+        "exports map has '.', './server', './lambda' each pointing to ./dist/<x>/index.js + .d.ts (root '.' -> ./dist/index.{js,d.ts})",
+        "files is [\"dist\",\"README.md\"]; publishConfig.access is 'public'",
+        "dependencies has p-limit (^6.x); peerDependencies has @remotion/renderer and @remotion/lambda (>=4.0.0) both marked optional in peerDependenciesMeta",
+        "devDependencies include @remotion/renderer, @remotion/lambda, typescript ^6.0.3",
+        "scripts: build (bun run scripts/build.ts), dev (--watch), test (bun test), types (tsc --noEmit)"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "tsconfig.json + tsconfig.build.json",
+      "priority": 2,
+      "passes": true,
+      "acceptanceCriteria": [
+        "packages/render-sdk/tsconfig.json: strict, moduleResolution bundler|nodenext, verbatimModuleSyntax, noEmit true, lib includes ESNext and DOM",
+        "packages/render-sdk/tsconfig.build.json extends base, declaration true, emitDeclarationOnly true, outDir dist, noEmit false, include [\"src\"]",
+        "tsc --noEmit passes in packages/render-sdk with zero errors"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "bunfig.toml test config",
+      "priority": 3,
+      "passes": true,
+      "acceptanceCriteria": [
+        "packages/render-sdk/bunfig.toml exists with a [test] section",
+        "bun test runs in packages/render-sdk (zero tests OK, exit 0)"
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "scripts/build.ts emits ESM + .d.ts to dist with externals",
+      "priority": 4,
+      "passes": true,
+      "acceptanceCriteria": [
+        "scripts/build.ts reads entrypoints from pkg.exports (., ./server, ./lambda) mapping dist/x.js -> src/x.ts",
+        "Bun.build runs with target node, format esm, outdir dist; external covers peerDependencies + dependencies + node builtins",
+        "After build, dist/index.js, dist/server/index.js, dist/lambda/index.js exist and matching *.d.ts emitted via tsc -p tsconfig.build.json",
+        "No @remotion/* or p-limit source is inlined into any dist output (grep dist for 'p-limit'/'@remotion' import specifiers only)",
+        "dist/ is cleaned before each build; --watch flag re-runs on change"
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "src placeholder entrypoints + README stub",
+      "priority": 5,
+      "passes": true,
+      "acceptanceCriteria": [
+        "src/index.ts, src/server/index.ts, src/lambda/index.ts exist with trivial placeholder exports (e.g. export const VERSION or export {})",
+        "packages/render-sdk/README.md stub exists",
+        "src directory shape mirrors the dist/server, dist/lambda subpath layout"
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Workspace install + build green end-to-end",
+      "priority": 6,
+      "passes": true,
+      "acceptanceCriteria": [
+        "bun install at repo root resolves with remotion peers present as devDeps, no errors; bun.lock updated",
+        "bun run build (in packages/render-sdk) exits 0 and produces the three dist entries + .d.ts",
+        "Root-importing the built dist root export resolves (e.g. node import of dist/index.js)",
+        "bun test exits 0 and tsc --noEmit passes in packages/render-sdk"
+      ]
+    }
+  ]
+}
