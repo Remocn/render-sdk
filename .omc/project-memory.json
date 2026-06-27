@@ -1,0 +1,173 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1782572267936,
+  "projectRoot": "/Users/dev_wandry/projects/opensource/remocn-render-sdk",
+  "techStack": {
+    "languages": [
+      {
+        "name": "JavaScript/TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "package.json"
+        ]
+      },
+      {
+        "name": "TypeScript",
+        "version": null,
+        "confidence": "high",
+        "markers": [
+          "tsconfig.json"
+        ]
+      }
+    ],
+    "frameworks": [
+      {
+        "name": "next",
+        "version": "16.2.9",
+        "category": "fullstack"
+      },
+      {
+        "name": "react",
+        "version": "19.2.7",
+        "category": "frontend"
+      },
+      {
+        "name": "react-dom",
+        "version": "19.2.7",
+        "category": "frontend"
+      }
+    ],
+    "packageManager": "npm",
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": "npm run build",
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": "npm run dev",
+    "scripts": {
+      "build": "next build",
+      "dev": "next dev",
+      "start": "next start",
+      "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
+      "postinstall": "fumadocs-mdx"
+    }
+  },
+  "conventions": {
+    "namingStyle": "camelCase",
+    "importStyle": "ES modules",
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [
+      "app",
+      "components",
+      "lib"
+    ],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "app": {
+      "path": "app",
+      "purpose": "Application code",
+      "fileCount": 2,
+      "lastAccessed": 1782572267870,
+      "keyFiles": [
+        "global.css",
+        "layout.tsx"
+      ]
+    },
+    "components": {
+      "path": "components",
+      "purpose": "UI components",
+      "fileCount": 1,
+      "lastAccessed": 1782572267870,
+      "keyFiles": [
+        "mdx.tsx"
+      ]
+    },
+    "content": {
+      "path": "content",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1782572267905,
+      "keyFiles": []
+    },
+    "lib": {
+      "path": "lib",
+      "purpose": "Library code",
+      "fileCount": 4,
+      "lastAccessed": 1782572267906,
+      "keyFiles": [
+        "cn.ts",
+        "layout.shared.tsx",
+        "shared.ts",
+        "source.ts"
+      ]
+    },
+    "app/api": {
+      "path": "app/api",
+      "purpose": "API routes",
+      "fileCount": 0,
+      "lastAccessed": 1782572267907,
+      "keyFiles": []
+    },
+    "app/docs": {
+      "path": "app/docs",
+      "purpose": "Documentation",
+      "fileCount": 1,
+      "lastAccessed": 1782572267907,
+      "keyFiles": [
+        "layout.tsx"
+      ]
+    },
+    "content/docs": {
+      "path": "content/docs",
+      "purpose": "Documentation",
+      "fileCount": 2,
+      "lastAccessed": 1782572267909,
+      "keyFiles": [
+        "index.mdx",
+        "test.mdx"
+      ]
+    }
+  },
+  "hotPaths": [
+    {
+      "path": "tsconfig.json",
+      "accessCount": 1,
+      "lastAccessed": 1782573486171,
+      "type": "file"
+    },
+    {
+      "path": "next.config.mjs",
+      "accessCount": 1,
+      "lastAccessed": 1782573486571,
+      "type": "file"
+    },
+    {
+      "path": "source.config.ts",
+      "accessCount": 1,
+      "lastAccessed": 1782573487069,
+      "type": "file"
+    },
+    {
+      "path": "proxy.ts",
+      "accessCount": 1,
+      "lastAccessed": 1782573487499,
+      "type": "file"
+    },
+    {
+      "path": "postcss.config.mjs",
+      "accessCount": 1,
+      "lastAccessed": 1782573488463,
+      "type": "file"
+    }
+  ],
+  "userDirectives": []
+}
