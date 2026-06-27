@@ -1,0 +1,72 @@
+{
+  "title": "PRD 06 \u2014 Server Adapter (@remocn/render-sdk/server)",
+  "source_plan": ".omc/plans/06-server-adapter.md",
+  "stories": [
+    {
+      "id": "US-06-1",
+      "title": "RenderServer adapter shape + config/options types",
+      "passes": true,
+      "acceptanceCriteria": [
+        "src/server/index.ts exports RenderServer(config: ServerConfig): RenderAdapter<ServerOptions> plus ServerConfig and ServerOptions types",
+        "ServerConfig has serveUrl, workDir (required), publicUrl?, concurrency? (default 2), store? (defaults to a fresh InMemoryStore)",
+        "ServerOptions has concurrency?, chromiumOptions? (from @remotion/renderer), timeoutInMilliseconds?",
+        "RenderServer(...) is assignable to RenderAdapter<ServerOptions> and plugs into new RenderSdk({ adapter }) with start options auto-typed (no `as` at the call site)",
+        "bun run types passes with 0 errors"
+      ]
+    },
+    {
+      "id": "US-06-2",
+      "title": "start: handle + store transitions + detached limited render",
+      "passes": true,
+      "acceptanceCriteria": [
+        "start generates a jobId, returns encodeServerHandle(jobId) immediately without awaiting the render",
+        "start writes an initial store record {status:'queued', progress:0, codec, createdAt}",
+        "the render task runs on a p-limit limiter and transitions the store queued->rendering->done across polls",
+        "renderMedia onProgress is mapped into store.update with progress clamped to 0..1",
+        "output file path is `${workDir}/${handle}.${ext}` with ext resolved from the job codec; workDir is mkdir -p'd before write",
+        "server.start.test.ts verifies handle shape + store transitions + onProgress->store with a mocked @remotion/renderer (no real Chromium)"
+      ]
+    },
+    {
+      "id": "US-06-3",
+      "title": "Concurrency bound by the limiter",
+      "passes": true,
+      "acceptanceCriteria": [
+        "with concurrency 1, a second job stays 'queued' while the first is 'rendering' (gated mock renderer)",
+        "releasing the first job lets the second acquire a slot and transition to 'rendering'",
+        "server.limiter.test.ts proves the bound deterministically with a controllable (deferred) mock"
+      ]
+    },
+    {
+      "id": "US-06-4",
+      "title": "getState / getUrl / download semantics",
+      "passes": true,
+      "acceptanceCriteria": [
+        "getState maps the record to {status, progress, error?}; unknown handle throws RenderError('not_found')",
+        "getUrl returns `${publicUrl}/${handle}.${ext}` when publicUrl is set, else bare `${handle}.${ext}`; ext from the stored codec; unknown handle -> not_found",
+        "download returns a web ReadableStream of the file via Readable.toWeb; missing record or missing file -> RenderError('not_found')",
+        "server.url.test.ts and server.download.test.ts cover both branches incl. a real temp file round-trip"
+      ]
+    },
+    {
+      "id": "US-06-5",
+      "title": "Error classification: render_failed vs version_mismatch",
+      "passes": true,
+      "acceptanceCriteria": [
+        "a rejected renderMedia writes store status:'error' with the error message (no unhandledRejection from the detached task)",
+        "a remotion version-mismatch-shaped error is classified as code 'version_mismatch'; other errors as 'render_failed'; the code is persisted on the record and surfaced (errorCode field)",
+        "server.error.test.ts covers both the generic failure and the simulated version error"
+      ]
+    },
+    {
+      "id": "US-06-6",
+      "title": "Build keeps remotion external + codec type-guard",
+      "passes": true,
+      "acceptanceCriteria": [
+        "bun run build succeeds and dist/server/index.js does not bundle @remotion/renderer (stays external)",
+        "a compile-time type-guard test asserts our Codec union is assignable to @remotion/renderer's Codec",
+        "bun test is fully green and the full suite count increased over the pre-PRD-06 baseline (39)"
+      ]
+    }
+  ]
+}

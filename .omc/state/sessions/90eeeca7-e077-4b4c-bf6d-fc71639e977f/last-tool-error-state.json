@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd packages/render-sdk && echo \\\"=== src tree ===\\\" && find src -type f | sort && echo \\\"\\\" && echo \\\"=== test tree ===\\\" && find test -type f | sort && echo \\\"\\\" && echo \\\"=== @remotion i...",
+  "error": "Exit code 1\n=== src tree ===\nsrc/adapter.ts\nsrc/codecs.ts\nsrc/errors.ts\nsrc/handle.ts\nsrc/index.ts\nsrc/lambda/index.ts\nsrc/sdk.ts\nsrc/server/index.ts\nsrc/store/in-memory.ts\nsrc/store/types.ts\nsrc/types.ts\nsrc/wait.ts\n\n=== test tree ===\ntest/build-output.test.ts\ntest/codecs.test.ts\ntest/errors.test.ts\ntest/handle.test.ts\ntest/in-memory.test.ts\ntest/sdk.test.ts\ntest/wait.test.ts\n\n=== @remotion installed? ===\nlambda\nrenderer",
+  "timestamp": "2026-06-27T17:13:13.999Z",
+  "retry_count": 1
+}

@@ -114,7 +114,7 @@ function abortableDelay(ms, signal) {
 async function waitForCompletion(adapter, handle, opts = {}) {
   const { onProgress, intervalMs = DEFAULT_INTERVAL_MS, signal, timeoutMs } = opts;
   const deadline = timeoutMs === undefined ? undefined : Date.now() + timeoutMs;
-  for (;; ) {
+  while (true) {
     if (signal?.aborted) {
       throw new RenderError("adapter_error", "aborted");
     }
