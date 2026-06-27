@@ -16,3 +16,4 @@ export declare function rejectEmptyHandle(handle: string): void;
 export declare function rejectMalformedServerHandle(parts: string[], handle: string): void;
 export declare function rejectMalformedLambdaHandle(parts: string[], handle: string): void;
 export declare function rejectUnknownAdapterTag(handle: string): never;
+export declare function classifyRenderError(message: string): RenderError["code"];

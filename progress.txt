@@ -268,3 +268,55 @@ optional peer dep imported only by the /server subpath (root export rema­ins re
   render_failed (matches the locked design record — no proactive version probing).
 - Next: PR 07 (lambda adapter, depends 03/05) is the sibling backend; PR 08 (docs) waits on both
   adapters; PR 09 (CI) can land anytime after 02.
+
+## PRD 07 — Lambda Adapter (`@remocn/render-sdk/lambda`) — DONE (session f5a19b9f)
+
+### What was implemented
+`RenderLambda(config)` — the distributed adapter over `@remotion/lambda` (v4.0.484). Fires renders
+immediately (no p-limit, no store — AWS scales), reads state from `getRenderProgress`, encodes all
+per-job data into the handle (`l~renderId~bucket~ext`), and maps Remotion's version error to
+`RenderError("version_mismatch")`. `@remotion/lambda` stays an optional peer dep imported only by
+the /lambda subpath (root export stays remotion-free, like /server).
+
+### Files created / changed (packages/render-sdk/)
+- `src/lambda/index.ts` (was `export {}`): RenderLambda(config: LambdaConfig): RenderAdapter<LambdaOptions>.
+  LambdaConfig{region: AwsRegion, functionName, serveUrl}; LambdaOptions{framesPerLambda?,
+  webhook?:{url;secret}, privacy?:"public"|"private", outName?, maxRetries?}. start() → codec(default
+  h264) → try renderMediaOnLambda({region,functionName,serveUrl:input.serveUrl??config.serveUrl,
+  composition:input.compositionId, codec, inputProps, pixelFormat, frameRange, scale, jpegQuality,
+  + 5 options}) → {renderId,bucketName} → encodeLambdaHandle({renderId,bucket:bucketName,
+  ext:extForCodec(codec)}); catch → throw RenderError(classifyRenderError(message), ..., {cause}).
+  Shared fetchProgress(handle) = decodeHandle + lambda-guard(not_found) + getRenderProgress({renderId,
+  bucketName:bucket, functionName, region}). mapProgress: done→{done,1}; fatalErrorEncountered→{error,
+  overallProgress, errors[0]?.message (conditional spread)}; overallProgress>0→{rendering,overallProgress};
+  else→{queued,0}. getUrl: fetchProgress → outputFile ?? throw not_found. download: fetch(getUrl) →
+  !ok||!body ? throw adapter_error : res.body.
+- `test/_lambda-harness.ts` + 5 specs (start/state/url-download/version/types): 24 new tests.
+  mockLambda() registers mock.module("@remotion/lambda/client") BEFORE dynamic `await import("../src/lambda")`.
+  makeProgress(partial) returns only the 5 fields the adapter reads (deslop: dropped ~30 unused
+  RenderProgress fields). lambda.types.test.ts: Codec→ServerlessCodec assignability + @ts-expect-error
+  proving chromiumOptions (server-only) fails to compile through RenderSdk.
+
+### Verification evidence (all exit 0)
+- `bun run types`: 0 errors. `bun run build`: succeeded. `bun test`: 80 pass / 0 fail across 18 files
+  (was 56/13). `grep -c 'from "@remotion/lambda/client"' dist/lambda/index.js` = 1; remotion internals
+  bundled = 0 (external preserved). Architect reviewer: APPROVED against all PRD-07 acceptance criteria.
+  Deslop: trimmed makeProgress to the 5 read fields; post-deslop regression still 80 pass.
+
+### Learnings / patterns for future PRDs
+- @remotion/lambda v4.0.484: import { renderMediaOnLambda, getRenderProgress } AND `type AwsRegion`
+  from the `@remotion/lambda/client` subpath. renderMediaOnLambda takes `composition` as the id STRING
+  (not a VideoConfig object — unlike server's selectComposition). Returns {renderId, bucketName, ...}.
+- serverlessCodecs == our Codec union EXACTLY (h264,h265,vp8,vp9,mp3,aac,wav,gif,prores), so input.codec
+  forwards to renderMediaOnLambda with no cast. PixelFormat + frameRange [n,n] also forward cast-free.
+- WebhookOption/Privacy/OutNameInput are NOT re-exported from @remotion/lambda/client (they live in
+  @remotion/serverless-client). Type LambdaOptions structurally ({url;secret}/"public"|"private"/string) —
+  these are assignable to what renderMediaOnLambda accepts, keeping the adapter's public types lean.
+- getRenderProgress (GenericRenderProgress): the fields that matter are done, overallProgress,
+  fatalErrorEncountered, errors[].message, outputFile (string|null). outputFile is null until done.
+- classifyRenderError (/version/i && /match/i → version_mismatch) already covers Remotion's lambda
+  version-mismatch message ("...version does not match...") — reused, no lambda-specific matcher needed.
+- Lambda is stateless: start does NOT await render completion; renderMediaOnLambda returns after the
+  render is enqueued on AWS, so returning the handle immediately is correct (no detached promise like
+  server's `void limit(...)` — the cloud owns execution).
+- Next: PR 08 (docs + README) is now unblocked (both adapters frozen). PR 09 (CI) can land anytime.

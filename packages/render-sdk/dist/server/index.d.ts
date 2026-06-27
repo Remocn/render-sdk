@@ -37,4 +37,10 @@ export type ServerOptions = {
     /** Per-operation timeout forwarded to remotion. */
     timeoutInMilliseconds?: number;
 };
+/**
+ * Classify a thrown render failure. Remotion surfaces a version mismatch
+ * between `remotion` and `@remotion/*` packages as an error whose message
+ * mentions a version that does not match — map those to `version_mismatch`,
+ * everything else to `render_failed`.
+ */
 export declare function RenderServer(config: ServerConfig): RenderAdapter<ServerOptions>;

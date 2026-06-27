@@ -28,6 +28,9 @@ function rejectMalformedLambdaHandle(parts, handle) {
 function rejectUnknownAdapterTag(handle) {
   throw new RenderError("not_found", `Unknown handle adapter tag: ${handle}`);
 }
+function classifyRenderError(message) {
+  return /version/i.test(message) && /match/i.test(message) ? "version_mismatch" : "render_failed";
+}
 // src/handle.ts
 var DELIMITER = "~";
 function encodeServerHandle(jobId) {
