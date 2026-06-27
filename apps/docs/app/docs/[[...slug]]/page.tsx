@@ -6,30 +6,39 @@ import {
   DocsTitle,
   MarkdownCopyButton,
   ViewOptionsPopover,
-} from 'fumadocs-ui/layouts/docs/page';
-import { notFound } from 'next/navigation';
+} from 'fumadocs-ui/layouts/notebook/page';
+import { notFound, redirect } from 'next/navigation';
 import { getMDXComponents } from '@/components/mdx';
 import type { Metadata } from 'next';
 import { createRelativeLink } from 'fumadocs-ui/mdx';
 import { gitConfig } from '@/lib/shared';
+import type { DocData } from 'fumadocs-mdx/runtime/types';
 
 export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const params = await props.params;
   const page = source.getPage(params.slug);
-  if (!page) notFound();
+  if (!page) {
+    // `/docs` has no root index page — send it to the first tab.
+    if (!params.slug || params.slug.length === 0) redirect('/docs/general');
+    notFound();
+  }
 
-  const MDX = page.data.body;
+  // page.data is DocData & DocMethods & frontmatter at runtime; TypeScript loses
+  // the DocData part when importing through the @ts-nocheck generated .source/server.ts,
+  // so we restore it with a targeted cast.
+  const data = page.data as typeof page.data & DocData & { full?: boolean };
+  const MDX = data.body;
   const markdownUrl = getPageMarkdownUrl(page).url;
 
   return (
-    <DocsPage toc={page.data.toc} full={page.data.full}>
-      <DocsTitle>{page.data.title}</DocsTitle>
-      <DocsDescription className="mb-0">{page.data.description}</DocsDescription>
+    <DocsPage toc={data.toc} full={data.full}>
+      <DocsTitle>{data.title}</DocsTitle>
+      <DocsDescription className="mb-0">{data.description}</DocsDescription>
       <div className="flex flex-row gap-2 items-center border-b pb-6">
         <MarkdownCopyButton markdownUrl={markdownUrl} />
         <ViewOptionsPopover
           markdownUrl={markdownUrl}
-          githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/content/docs/${page.path}`}
+          githubUrl={`https://github.com/${gitConfig.user}/${gitConfig.repo}/blob/${gitConfig.branch}/apps/docs/content/docs/${page.path}`}
         />
       </div>
       <DocsBody>
@@ -51,7 +60,12 @@ export async function generateStaticParams() {
 export async function generateMetadata(props: PageProps<'/docs/[[...slug]]'>): Promise<Metadata> {
   const params = await props.params;
   const page = source.getPage(params.slug);
-  if (!page) notFound();
+  if (!page) {
+    // `/docs` (empty slug) redirects at request time; give it neutral metadata
+    // instead of a 404 so the redirect in the page component can run.
+    if (!params.slug || params.slug.length === 0) return {};
+    notFound();
+  }
 
   return {
     title: page.data.title,

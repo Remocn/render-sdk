@@ -1,0 +1,41 @@
+---
+title: Limitations
+description: Known constraints, out-of-scope features, and things to be aware of before using @remocn/render-sdk.
+---
+
+## Out of scope
+
+The following features are **not implemented** by this SDK and are not planned:
+
+- **Listing renders** — no render list API exists. Query your own `StateStore` directly if you need render history.
+- **Cancelling renders** — no cancel API is provided. Cancel the underlying Remotion render through `@remotion/renderer` or Lambda directly.
+- **Deleting renders** — no delete API is provided. Call `store.delete(handle)` and remove the output file yourself.
+- **Uploading assets** — no asset upload API is provided. Pass a publicly reachable URL in `inputProps` or `serveUrl`.
+- **HTTP server** — the SDK does not expose an HTTP server. Wire it into your own framework using the [transport recipes](/docs/client).
+
+---
+
+## Server adapter constraints
+
+- **In-process queue only.** The `p-limit` limiter lives inside the process. In multi-process deployments (e.g. PM2 cluster, Kubernetes with `replicas > 1`) each process has its own queue and concurrency limit — total concurrency across the cluster equals `concurrency × processCount`.
+- **`InMemoryStore` is not shared across processes.** If a render starts on process A and is polled on process B, process B will return `null`. Use a networked store (Redis, database) for multi-process deployments.
+- **Renders do not survive process restart.** Records held in `InMemoryStore` are lost when the process exits. In-flight renders writing to `workDir` leave partial files.
+- **`getUrl()` returns a string, not a verified URL.** The SDK does not check that the file exists on disk or that `publicUrl` is reachable before returning. Call it only after `status === "done"`.
+- **The SDK does not serve files.** `publicUrl` is concatenated with the filename — the SDK does not create an HTTP server. You must expose `workDir` yourself.
+
+---
+
+## Lambda adapter constraints
+
+- **No state persistence.** The lambda adapter does not use a `StateStore`. If the `RenderSdk` instance is lost (e.g. serverless function cold start), you can still reconstruct the handle with `encodeLambdaHandle` and poll `getState` as long as you know `renderId`, `bucket`, and `ext`.
+- **`getUrl()` throws before the render is done.** The S3 `outputFile` URL is `null` until `status === "done"`. Calling `getUrl()` before then throws `RenderError("not_found")`.
+- **AWS permissions must be provisioned externally.** The SDK does not create IAM roles, S3 buckets, or Lambda functions. See [Provisioning](/docs/client/provisioning).
+- **Region must match.** The `region` in `LambdaConfig` must match where the function and S3 bucket were deployed.
+
+---
+
+## General
+
+- **Remotion peer dependencies are optional but required at runtime.** `@remotion/renderer` must be installed to use `RenderServer`; `@remotion/lambda` must be installed to use `RenderLambda`. Importing the wrong subpath without the peer installed will throw at runtime.
+- **`waitForCompletion` polls, it does not subscribe.** There is no webhook or push notification built into `waitForCompletion`. Use `intervalMs` to tune poll frequency (default ~1000 ms). For webhook delivery, pass a `webhook` option to `LambdaOptions` — this is forwarded to Remotion Lambda and fires independently of `waitForCompletion`.
+- **No built-in retry on transient errors.** If `getState` throws a network error during `waitForCompletion`, the entire call rejects. Add retry logic in your own wrapper if needed.

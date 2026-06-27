@@ -1,0 +1,36 @@
+---
+title: Introducing
+description: What @remocn/render-sdk is, the responsibility boundary, and how it works.
+---
+
+`@remocn/render-sdk` is a backend-swappable render engine for [Remotion](https://remotion.dev). It gives you one API to start renders, poll progress, get output URLs, and stream output bytes — regardless of whether the render runs on your own server or on AWS Lambda.
+
+## Responsibility boundary
+
+The SDK owns the **render lifecycle** after you hand it a composition ID and optional props. It does not own:
+
+- Remotion composition code (yours)
+- Bundling / site deployment (your startup/CI step)
+- HTTP servers or static file hosting (your infrastructure)
+- AWS IAM roles, S3 buckets, or Lambda functions (your provisioning)
+
+In short: the SDK calls Remotion; you wire up everything around it.
+
+## How it works
+
+```
+your code
+  └─► RenderSdk.start(input)
+        └─► adapter.start(input, options)   ← RenderServer or RenderLambda
+              └─► @remotion/renderer  OR  @remotion/lambda
+                    └─► rendered file on disk  OR  S3 object
+```
+
+`RenderSdk` is a thin coordinator. Each adapter implements the four-method `RenderAdapter` interface (`start`, `getState`, `getUrl`, `download`). You swap adapters without changing the rest of your code.
+
+## Adapters
+
+| adapter | peer dep | runs on | scales via |
+|---|---|---|---|
+| `RenderServer` | `@remotion/renderer` | your Node.js process | `p-limit` (default concurrency 2) |
+| `RenderLambda` | `@remotion/lambda` | AWS Lambda | AWS auto-scaling |

@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/apps/docs\\necho \\\"=== app tree ===\\\" && find app -type f | sort\\necho \\\"=== lib ===\\\" && find lib -type f 2>/dev/null | sort\\nech...",
+  "error": "Exit code 1\n=== app tree ===\napp/(home)/layout.tsx\napp/(home)/page.tsx\napp/api/search/route.ts\napp/docs/[[...slug]]/page.tsx\napp/docs/layout.tsx\napp/global.css\napp/layout.tsx\napp/llms-full.txt/route.ts\napp/llms.mdx/docs/[[...slug]]/route.ts\napp/llms.txt/route.ts\napp/og/docs/[...slug]/route.tsx\n=== lib ===\nlib/cn.ts\nlib/layout.shared.tsx\nlib/shared.ts\nlib/source.ts\n=== layout configs ===\n(eval):4: no matches found: *.tsx\n=== public ===",
+  "timestamp": "2026-06-27T18:41:16.655Z",
+  "retry_count": 1
+}

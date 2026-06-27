@@ -1,0 +1,119 @@
+---
+title: Provisioning
+description: How to bundle your Remotion composition for the server adapter, and how to deploy a site and function for the Lambda adapter.
+---
+
+The SDK does **not** bundle, deploy, or configure Remotion infrastructure. These are your startup/CI steps. The recipes below use real Remotion v4 APIs — copy and adapt them.
+
+---
+
+## Server adapter — bundle at startup
+
+The server adapter needs a `serveUrl` pointing to a bundled Remotion site. Run `bundle()` once when your server starts (or as a build step) and pass the result to `RenderServer`.
+
+```ts
+import { bundle } from "@remotion/bundler";
+import { RenderSdk } from "@remocn/render-sdk";
+import { RenderServer } from "@remocn/render-sdk/server";
+
+// Run once at startup — this compiles your Remotion compositions
+const serveUrl = await bundle({
+  entryPoint: "./src/remotion/index.ts",
+  // optional: onProgress to log bundle progress
+  onProgress: (p) => console.log(`bundle: ${p}%`),
+});
+
+const sdk = new RenderSdk({
+  adapter: RenderServer({
+    serveUrl,
+    workDir: "./out",
+    publicUrl: process.env.RENDER_PUBLIC_URL,
+    concurrency: 2,
+  }),
+});
+```
+
+`bundle()` returns a local URL (e.g. `http://localhost:3001`) or a path that `@remotion/renderer` can resolve. You do not need to re-bundle on every render — only when composition code changes.
+
+### Serving rendered output
+
+`RenderServer` writes files to `workDir`. The SDK does not serve them. You must expose that directory over HTTP if you want `getUrl()` to return a reachable URL:
+
+```ts
+// Example: serve ./out with Next.js rewrites or Express static middleware
+// Express:
+import express from "express";
+app.use("/renders", express.static("./out"));
+// Then set publicUrl: "https://your-domain.com/renders"
+```
+
+---
+
+## Lambda adapter — deploy site and function in CI
+
+The Lambda adapter needs:
+- A deployed Remotion site on S3 (`serveUrl`)
+- A deployed Remotion Lambda function (`functionName`)
+- The AWS `region` where both live
+
+Run these steps in CI once, then hardcode or inject the outputs as environment variables.
+
+```ts
+import {
+  deploySite,
+  deployFunction,
+  getOrCreateBucket,
+} from "@remotion/lambda";
+
+// 1. Ensure an S3 bucket exists in your region
+const { bucketName } = await getOrCreateBucket({ region: "us-east-1" });
+
+// 2. Deploy your Remotion site to S3
+const { serveUrl } = await deploySite({
+  entryPoint: "./src/remotion/index.ts",
+  bucketName,
+  region: "us-east-1",
+});
+
+// 3. Deploy (or update) the Lambda function
+const { functionName } = await deployFunction({
+  region: "us-east-1",
+  timeoutInSeconds: 240,
+  memorySizeInMb: 2048,
+  createCloudWatchLogGroup: true,
+  architecture: "arm64",
+});
+
+console.log({ serveUrl, functionName });
+// Store these in your environment: REMOTION_SERVE_URL, REMOTION_FUNCTION_NAME
+```
+
+Then at runtime:
+
+```ts
+import { RenderSdk } from "@remocn/render-sdk";
+import { RenderLambda } from "@remocn/render-sdk/lambda";
+
+const sdk = new RenderSdk({
+  adapter: RenderLambda({
+    region: "us-east-1",
+    functionName: process.env.REMOTION_FUNCTION_NAME!,
+    serveUrl: process.env.REMOTION_SERVE_URL!,
+  }),
+});
+```
+
+### IAM permissions
+
+Your Lambda execution role needs S3 read/write access to the renders bucket and CloudWatch log write access. See the [Remotion Lambda IAM docs](https://www.remotion.dev/docs/lambda/permissions) for the minimal policy.
+
+---
+
+## Summary
+
+| step | server adapter | lambda adapter |
+|---|---|---|
+| build-time | `bundle()` → `serveUrl` | `deploySite()` → `serveUrl` |
+| deploy | none (runs in-process) | `deployFunction()` → `functionName` |
+| SDK config | `serveUrl`, `workDir` | `serveUrl`, `functionName`, `region` |
+| re-run when | composition code changes | composition code changes |

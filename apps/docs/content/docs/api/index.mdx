@@ -1,0 +1,215 @@
+---
+title: Public Surface
+description: The complete API surface — RenderSdk, helpers, types, and constants.
+---
+
+## `RenderSdk<A>`
+
+```ts
+import { RenderSdk } from "@remocn/render-sdk";
+
+const sdk = new RenderSdk({ adapter, store? });
+```
+
+### Constructor
+
+```ts
+type RenderSdkConfig<A extends RenderAdapter<any>> = {
+  adapter: A;
+  store?: StateStore;
+};
+```
+
+| field | required | description |
+|---|---|---|
+| `adapter` | yes | The execution backend (`RenderServer(...)` or `RenderLambda(...)`). |
+| `store` | no | Override the `StateStore` used by the adapter. Defaults to the adapter's own store (usually `InMemoryStore()`). |
+
+### Methods
+
+#### `start(input, options?)`
+
+```ts
+start(input: RenderInput, options?: OptionsOf<A>): Promise<RenderHandle>
+```
+
+Enqueues a render and returns a handle. The handle is an opaque string that encodes enough information for all subsequent calls. `options` are adapter-specific (see [Adapters](/docs/adapters)).
+
+#### `getState(handle)`
+
+```ts
+getState(handle: RenderHandle): Promise<RenderState>
+```
+
+Returns the current render state. Poll this after `start` to track progress.
+
+#### `getUrl(handle)`
+
+```ts
+getUrl(handle: RenderHandle): Promise<string>
+```
+
+Returns the output URL. **Only valid when `status === "done"`** — calling this before then may throw `RenderError("not_found")` or return a URL that does not yet resolve.
+
+| adapter | returns | condition |
+|---|---|---|
+| `RenderServer` | `${publicUrl}/${handle}.${ext}` (or bare filename if no `publicUrl` was set) | file exists on disk after render |
+| `RenderLambda` | S3 `outputFile` URL from `getRenderProgress` | only when `status === "done"` |
+
+#### `download(handle)`
+
+```ts
+download(handle: RenderHandle): Promise<ReadableStream>
+```
+
+Streams the rendered output bytes. For the server adapter this reads from disk; for lambda it calls `fetch(getUrl())` and returns `response.body`.
+
+#### `waitForCompletion(handle, opts?)`
+
+```ts
+waitForCompletion(handle: RenderHandle, opts?: WaitOptions): Promise<RenderState>
+```
+
+Polls `getState` in a loop until `status` is `"done"` or `"error"`, then returns the final `RenderState`. Throws `RenderError("timeout")` if `timeoutMs` elapses.
+
+### Readonly fields
+
+```ts
+sdk.adapter  // the adapter passed at construction
+sdk.store    // the StateStore, if one was set
+```
+
+---
+
+## Standalone `waitForCompletion`
+
+```ts
+import { waitForCompletion } from "@remocn/render-sdk";
+
+const state = await waitForCompletion(adapter, handle, opts?);
+```
+
+Works with any object that implements `getState`. Useful when you have an adapter but not a full `RenderSdk` instance.
+
+---
+
+## `RenderError`
+
+```ts
+import { RenderError } from "@remocn/render-sdk";
+
+throw new RenderError("render_failed", "Composition crashed", { cause: originalError });
+```
+
+| `code` | meaning |
+|---|---|
+| `"invalid_input"` | Bad `RenderInput` (missing composition ID, invalid codec, etc.) |
+| `"render_failed"` | Remotion threw during rendering |
+| `"timeout"` | `waitForCompletion` exceeded `timeoutMs` |
+| `"not_found"` | Handle not found in the `StateStore` |
+| `"version_mismatch"` | Remotion version incompatibility detected |
+| `"adapter_error"` | Generic adapter-level failure |
+
+---
+
+## `InMemoryStore()`
+
+```ts
+import { InMemoryStore } from "@remocn/render-sdk";
+
+const store = InMemoryStore(); // factory — do NOT use "new"
+```
+
+Returns a `StateStore` backed by a `Map`. Suitable for single-process server deployments and tests. Not suitable for multi-process or multi-instance deployments.
+
+---
+
+## Handle helpers
+
+```ts
+import {
+  encodeServerHandle,
+  encodeLambdaHandle,
+  decodeHandle,
+  type DecodedHandle,
+} from "@remocn/render-sdk";
+
+const h1 = encodeServerHandle("job-abc-123");
+
+const h2 = encodeLambdaHandle({
+  renderId: "abc123",
+  bucket: "remotionlambda-xxxx",
+  ext: "mp4",
+});
+
+const decoded: DecodedHandle = decodeHandle(h1);
+```
+
+---
+
+## Codec utilities
+
+```ts
+import { CODEC_EXT, extForCodec } from "@remocn/render-sdk";
+
+extForCodec("h264"); // "mp4"
+extForCodec("gif");  // "gif"
+extForCodec();       // "mp4" — default codec is "h264"
+
+CODEC_EXT["vp9"];    // "webm"
+```
+
+---
+
+## `VERSION`
+
+```ts
+import { VERSION } from "@remocn/render-sdk";
+// "0.1.0" (semver string, set at build time)
+```
+
+---
+
+## Type reference
+
+```ts
+type RenderStatus = "queued" | "rendering" | "done" | "error";
+
+type Codec =
+  | "h264" | "h265" | "vp8" | "vp9"
+  | "gif" | "prores" | "mp3" | "aac" | "wav";
+// default: "h264"
+
+type PixelFormat =
+  | "yuv420p" | "yuva420p"
+  | "yuv422p" | "yuv444p"
+  | "yuv420p10le" | "yuv422p10le" | "yuv444p10le" | "yuva444p10le";
+
+type RenderState = {
+  status: RenderStatus;
+  progress: number; // 0..1
+  error?: string;
+};
+
+type RenderInput = {
+  compositionId: string;
+  inputProps?: Record<string, unknown>;
+  serveUrl?: string;         // per-render override
+  codec?: Codec;             // default "h264"
+  frameRange?: [number, number];
+  scale?: number;
+  width?: number;
+  height?: number;
+  jpegQuality?: number;
+  pixelFormat?: PixelFormat;
+};
+
+type WaitOptions = {
+  onProgress?: (progress: number) => void; // 0..1
+  intervalMs?: number;                     // default ~1000
+  signal?: AbortSignal;
+  timeoutMs?: number;
+};
+
+type RenderHandle = string; // opaque encoded string
+```

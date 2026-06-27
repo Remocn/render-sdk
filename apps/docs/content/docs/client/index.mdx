@@ -1,0 +1,135 @@
+---
+title: Transport Recipes
+description: Copy-paste Next.js App Router API routes and a browser poll loop for starting renders, tracking progress, and downloading output.
+---
+
+The SDK ships **no HTTP layer**. These are copy-paste recipes that show how to wire it into a Next.js App Router application. Adapt them to any framework.
+
+---
+
+## Shared SDK instance
+
+Create the SDK once and import it from every route.
+
+```ts
+// lib/sdk.ts
+import { RenderSdk } from "@remocn/render-sdk";
+import { RenderServer } from "@remocn/render-sdk/server";
+
+export const sdk = new RenderSdk({
+  adapter: RenderServer({
+    serveUrl: process.env.REMOTION_SERVE_URL!,
+    workDir: process.env.RENDER_WORK_DIR ?? "./out",
+    publicUrl: process.env.RENDER_PUBLIC_URL,
+    concurrency: 2,
+  }),
+});
+```
+
+---
+
+## Start route
+
+```ts
+// app/api/render/route.ts
+import { NextResponse } from "next/server";
+import { sdk } from "@/lib/sdk";
+
+export async function POST(req: Request) {
+  const { compositionId, inputProps } = await req.json();
+
+  const handle = await sdk.start({ compositionId, inputProps });
+
+  return NextResponse.json({ handle });
+}
+```
+
+---
+
+## Poll route
+
+```ts
+// app/api/render/[handle]/route.ts
+import { NextResponse } from "next/server";
+import type { RenderHandle } from "@remocn/render-sdk";
+import { sdk } from "@/lib/sdk";
+
+export async function GET(
+  _req: Request,
+  { params }: { params: { handle: string } }
+) {
+  const state = await sdk.getState(params.handle as RenderHandle);
+  return NextResponse.json(state);
+}
+```
+
+Returns `{ status, progress, error? }`. `progress` is a number from `0` to `1`.
+
+---
+
+## Download route
+
+```ts
+// app/api/render/[handle]/download/route.ts
+import type { RenderHandle } from "@remocn/render-sdk";
+import { sdk } from "@/lib/sdk";
+
+export async function GET(
+  _req: Request,
+  { params }: { params: { handle: string } }
+) {
+  const stream = await sdk.download(params.handle as RenderHandle);
+  return new Response(stream);
+}
+```
+
+Only call this route once `status === "done"`. Calling it before the render finishes will throw `RenderError("not_found")` (server adapter) or fail to fetch the S3 URL (lambda adapter).
+
+---
+
+## Browser poll loop
+
+```ts
+async function startAndWaitForRender(compositionId: string, inputProps: unknown) {
+  // 1. Start the render
+  const { handle } = await fetch("/api/render", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ compositionId, inputProps }),
+  }).then((r) => r.json());
+
+  // 2. Poll until done
+  while (true) {
+    const state = await fetch(`/api/render/${handle}`).then((r) => r.json());
+
+    console.log(`progress: ${Math.round(state.progress * 100)}%`);
+
+    if (state.status === "done") {
+      // 3. Download (or redirect to the URL)
+      const blob = await fetch(`/api/render/${handle}/download`).then((r) => r.blob());
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "render.mp4";
+      a.click();
+      break;
+    }
+
+    if (state.status === "error") {
+      throw new Error(state.error ?? "Render failed");
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+  }
+}
+```
+
+`getUrl` / `download` are only valid when `status === "done"`. The loop above checks that before proceeding.
+
+---
+
+## Notes
+
+- The download route returns the raw stream. Add appropriate `Content-Type` and `Content-Disposition` headers for browser file downloads.
+- For long-running renders consider returning the `publicUrl` directly from the poll route instead of proxying through the download route — `await sdk.getUrl(handle)` when status is `done`.
+- If you use the Lambda adapter, `sdk.getUrl()` returns an S3 URL you can redirect to rather than proxying bytes through your server.

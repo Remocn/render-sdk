@@ -1,0 +1,63 @@
+---
+title: Get started
+description: Create the SDK with an adapter, start a render, wait for completion, and retrieve the output URL.
+---
+
+## Server adapter
+
+```ts
+import { bundle } from "@remotion/bundler";
+import { RenderSdk } from "@remocn/render-sdk";
+import { RenderServer } from "@remocn/render-sdk/server";
+
+// 1. Bundle your Remotion composition once at startup
+const serveUrl = await bundle({ entryPoint: "./src/remotion/index.ts" });
+
+// 2. Create the SDK with a server adapter
+const sdk = new RenderSdk({
+  adapter: RenderServer({
+    serveUrl,
+    workDir: "./out",
+    publicUrl: "https://cdn.example.com/renders",
+    concurrency: 2, // default
+  }),
+});
+
+// 3. Start a render
+const handle = await sdk.start({
+  compositionId: "Main",
+  inputProps: { title: "Hi" },
+});
+
+// 4. Wait for it to finish
+const state = await sdk.waitForCompletion(handle, {
+  onProgress: (p) => console.log(`${Math.round(p * 100)}%`),
+});
+
+// 5. Get the public URL (only valid when status === "done")
+const url = await sdk.getUrl(handle);
+console.log(url); // https://cdn.example.com/renders/<handle>.mp4
+```
+
+## Lambda adapter
+
+```ts
+import { RenderSdk } from "@remocn/render-sdk";
+import { RenderLambda } from "@remocn/render-sdk/lambda";
+
+const sdk = new RenderSdk({
+  adapter: RenderLambda({
+    region: "us-east-1",
+    functionName: "remotion-render",
+    serveUrl: "https://remotionlambda-xxxx.s3.us-east-1.amazonaws.com/sites/my-site/index.html",
+  }),
+});
+
+const handle = await sdk.start({ compositionId: "Main", inputProps: { title: "Hi" } });
+const state = await sdk.waitForCompletion(handle, {
+  onProgress: (p) => console.log(`${Math.round(p * 100)}%`),
+});
+const url = await sdk.getUrl(handle); // S3 URL — available only when status === "done"
+```
+
+For adapter configuration details see the [Adapters](/docs/adapters) tab. For wiring the SDK into a web framework see the [Client](/docs/client) tab.

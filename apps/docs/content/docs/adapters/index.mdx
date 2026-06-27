@@ -1,0 +1,35 @@
+---
+title: Adapters
+description: What an adapter is, how to swap backends, and which one to use.
+---
+
+An adapter implements the `RenderAdapter` interface and handles the actual execution of a render. Pass one adapter to `RenderSdk` at construction; swap it to change execution targets without touching the rest of your code.
+
+## Comparison
+
+| | `RenderServer` | `RenderLambda` |
+|---|---|---|
+| peer dependency | `@remotion/renderer` | `@remotion/lambda` |
+| concurrency | local `p-limit` (default 2) | AWS Lambda auto-scaling |
+| state persistence | `StateStore` (default `InMemoryStore()`) | stateless handle encoding |
+| output storage | local disk (`workDir`) | S3 |
+| `getUrl()` returns | `${publicUrl}/${handle}.${ext}` | S3 `outputFile` URL |
+| `getUrl()` valid when | file exists on disk (after `done`) | `status === "done"` only |
+| `download()` | reads from disk | `fetch`es the S3 URL |
+| provisioning | run `bundle()` at startup | run `deploySite` + `deployFunction` in CI |
+| suitable for | local dev, small teams, single-server | high-volume, burst workloads, serverless |
+
+## `RenderAdapter` interface
+
+If you want to write a custom adapter, implement:
+
+```ts
+interface RenderAdapter<O = unknown> {
+  start(input: RenderInput, options?: O): Promise<RenderHandle>;
+  getState(handle: RenderHandle): Promise<RenderState>;
+  getUrl(handle: RenderHandle): Promise<string>;
+  download(handle: RenderHandle): Promise<ReadableStream>;
+}
+```
+
+Pass the adapter to `new RenderSdk({ adapter })` and the `OptionsOf<typeof adapter>` type will be inferred automatically for `sdk.start()`.

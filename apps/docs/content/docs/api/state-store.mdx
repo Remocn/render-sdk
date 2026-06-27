@@ -1,0 +1,115 @@
+---
+title: State Store
+description: The StateStore interface for persisting render records, and the built-in InMemoryStore factory.
+---
+
+A `StateStore` persists render records between the moment a render is started and the moment it is queried or cleaned up. It is used exclusively by the **server adapter** — the lambda adapter is stateless (state lives in the encoded handle and AWS Lambda itself).
+
+---
+
+## `StateStore` interface
+
+```ts
+interface StateStore {
+  create(handle: RenderHandle, record: RenderRecord): Promise<void>;
+  get(handle: RenderHandle): Promise<RenderRecord | null>;
+  update(handle: RenderHandle, patch: Partial<RenderRecord>): Promise<void>;
+  delete(handle: RenderHandle): Promise<void>;
+}
+```
+
+### Methods
+
+| method | description |
+|---|---|
+| `create(handle, record)` | Insert a new render record. Called by the adapter when a render starts. |
+| `get(handle)` | Return the record for `handle`, or `null` if not found. |
+| `update(handle, patch)` | Merge `patch` into the existing record. Throws `RenderError("not_found")` if the handle does not exist. |
+| `delete(handle)` | Remove the record. Must be idempotent — calling on a non-existent handle must not throw. |
+
+### `RenderRecord`
+
+```ts
+type RenderRecord = {
+  status: RenderStatus;
+  progress: number;
+  error?: string;
+  errorCode?: RenderError["code"];
+  codec: Codec;
+  createdAt: number;       // Unix timestamp (ms)
+  meta?: Record<string, unknown>;
+};
+```
+
+---
+
+## `InMemoryStore()`
+
+```ts
+import { InMemoryStore } from "@remocn/render-sdk";
+
+const store = InMemoryStore(); // call as a factory — do NOT use "new"
+```
+
+The built-in store backed by a `Map<RenderHandle, RenderRecord>`. All operations are synchronous internally but wrapped in `Promise` to match the interface.
+
+### When to use it
+
+- Single-process Node.js server (default for `RenderServer`)
+- Tests and local development
+- Any scenario where losing in-flight render records on process restart is acceptable
+
+### When NOT to use it
+
+- Multi-process deployments (e.g. PM2 cluster mode, Kubernetes with replicas > 1) — each process has its own `Map`; a request landing on a different process cannot find the handle
+- Any deployment where renders must survive a server restart
+
+---
+
+## Custom stores
+
+Implement `StateStore` against any persistence backend. The interface is small enough to wrap Redis, a database, or a shared key-value store in a few lines.
+
+```ts
+import type { StateStore, RenderHandle, RenderRecord } from "@remocn/render-sdk";
+
+function RedisStore(client: RedisClient): StateStore {
+  return {
+    async create(handle, record) {
+      await client.set(handle, JSON.stringify(record));
+    },
+    async get(handle) {
+      const raw = await client.get(handle);
+      return raw ? JSON.parse(raw) : null;
+    },
+    async update(handle, patch) {
+      const existing = await client.get(handle);
+      if (!existing) throw new RenderError("not_found", `Handle ${handle} not found`);
+      await client.set(handle, JSON.stringify({ ...JSON.parse(existing), ...patch }));
+    },
+    async delete(handle) {
+      await client.del(handle);
+    },
+  };
+}
+```
+
+Pass the custom store to `RenderServer`:
+
+```ts
+import { RenderServer } from "@remocn/render-sdk/server";
+
+const adapter = RenderServer({
+  serveUrl,
+  workDir: "./out",
+  store: RedisStore(redisClient),
+});
+```
+
+Or pass it directly to `RenderSdk` to override the adapter's default:
+
+```ts
+import { RenderSdk } from "@remocn/render-sdk";
+
+const sdk = new RenderSdk({ adapter, store: RedisStore(redisClient) });
+```
