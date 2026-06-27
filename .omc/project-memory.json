@@ -140,8 +140,8 @@
   "hotPaths": [
     {
       "path": "packages/render-sdk/src/index.ts",
-      "accessCount": 11,
-      "lastAccessed": 1782580409980,
+      "accessCount": 12,
+      "lastAccessed": 1782584838448,
       "type": "file"
     },
     {
@@ -152,56 +152,80 @@
     },
     {
       "path": "packages/render-sdk/src/server/index.ts",
-      "accessCount": 7,
-      "lastAccessed": 1782580991027,
+      "accessCount": 8,
+      "lastAccessed": 1782584844182,
       "type": "file"
     },
     {
       "path": "packages/render-sdk/src/store/types.ts",
-      "accessCount": 7,
-      "lastAccessed": 1782580991391,
+      "accessCount": 8,
+      "lastAccessed": 1782584845531,
       "type": "file"
     },
     {
       "path": "packages/render-sdk/src/handle.ts",
-      "accessCount": 7,
-      "lastAccessed": 1782581010432,
+      "accessCount": 8,
+      "lastAccessed": 1782584847383,
       "type": "file"
     },
     {
       "path": "packages/render-sdk/src/types.ts",
-      "accessCount": 6,
-      "lastAccessed": 1782581009980,
+      "accessCount": 7,
+      "lastAccessed": 1782584839962,
       "type": "file"
     },
     {
       "path": "packages/render-sdk/src/errors.ts",
-      "accessCount": 6,
-      "lastAccessed": 1782581011872,
+      "accessCount": 7,
+      "lastAccessed": 1782584848365,
+      "type": "file"
+    },
+    {
+      "path": "apps/docs/content/docs/index.mdx",
+      "accessCount": 7,
+      "lastAccessed": 1782585016548,
       "type": "file"
     },
     {
       "path": "packages/render-sdk/src/adapter.ts",
+      "accessCount": 6,
+      "lastAccessed": 1782584846496,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/README.md",
+      "accessCount": 6,
+      "lastAccessed": 1782584851849,
+      "type": "file"
+    },
+    {
+      "path": "apps/docs/package.json",
       "accessCount": 5,
-      "lastAccessed": 1782581009034,
+      "lastAccessed": 1782583957100,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/lambda/index.ts",
+      "accessCount": 5,
+      "lastAccessed": 1782584844579,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/codecs.ts",
+      "accessCount": 5,
+      "lastAccessed": 1782584847846,
+      "type": "file"
+    },
+    {
+      "path": "apps/docs/app/(home)/page.tsx",
+      "accessCount": 5,
+      "lastAccessed": 1782585000011,
       "type": "file"
     },
     {
       "path": "package.json",
       "accessCount": 4,
       "lastAccessed": 1782575991233,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/package.json",
-      "accessCount": 4,
-      "lastAccessed": 1782576099893,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/lambda/index.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782578465119,
       "type": "file"
     },
     {
@@ -223,12 +247,6 @@
       "type": "file"
     },
     {
-      "path": "packages/render-sdk/src/codecs.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782581010915,
-      "type": "file"
-    },
-    {
       "path": "packages/render-sdk/test/_server-harness.ts",
       "accessCount": 4,
       "lastAccessed": 1782581182756,
@@ -238,6 +256,24 @@
       "path": "packages/render-sdk/test/server.url.test.ts",
       "accessCount": 4,
       "lastAccessed": 1782581191247,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/sdk.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782584838927,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/store/in-memory.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782584846054,
+      "type": "file"
+    },
+    {
+      "path": "apps/docs/content/docs/limitations.mdx",
+      "accessCount": 4,
+      "lastAccessed": 1782584999469,
       "type": "file"
     },
     {
@@ -259,15 +295,27 @@
       "type": "file"
     },
     {
-      "path": "packages/render-sdk/src/sdk.ts",
+      "path": "apps/docs/tsconfig.json",
       "accessCount": 3,
-      "lastAccessed": 1782581012326,
+      "lastAccessed": 1782584198979,
       "type": "file"
     },
     {
-      "path": "packages/render-sdk/src/store/in-memory.ts",
+      "path": "apps/docs/content/docs/adapters.mdx",
       "accessCount": 3,
-      "lastAccessed": 1782581012725,
+      "lastAccessed": 1782584853806,
+      "type": "file"
+    },
+    {
+      "path": "apps/docs/content/docs/transport-recipes.mdx",
+      "accessCount": 3,
+      "lastAccessed": 1782584857600,
+      "type": "file"
+    },
+    {
+      "path": "apps/docs/content/docs/public-surface.mdx",
+      "accessCount": 3,
+      "lastAccessed": 1782584999007,
       "type": "file"
     },
     {
@@ -298,18 +346,6 @@
       "path": "proxy.ts",
       "accessCount": 2,
       "lastAccessed": 1782575609974,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/tsconfig.json",
-      "accessCount": 2,
-      "lastAccessed": 1782575987285,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/README.md",
-      "accessCount": 2,
-      "lastAccessed": 1782576553049,
       "type": "file"
     },
     {
@@ -361,15 +397,45 @@
       "type": "file"
     },
     {
+      "path": "apps/docs/content/docs/test.mdx",
+      "accessCount": 2,
+      "lastAccessed": 1782583669571,
+      "type": "file"
+    },
+    {
+      "path": "apps/docs/source.config.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782583675135,
+      "type": "file"
+    },
+    {
       "path": "packages/render-sdk/src/wait.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782579815018,
+      "accessCount": 2,
+      "lastAccessed": 1782584839368,
+      "type": "file"
+    },
+    {
+      "path": "apps/docs/content/docs/provisioning.mdx",
+      "accessCount": 2,
+      "lastAccessed": 1782584858482,
+      "type": "file"
+    },
+    {
+      "path": "apps/docs/content/docs/state-store.mdx",
+      "accessCount": 2,
+      "lastAccessed": 1782584858940,
       "type": "file"
     },
     {
       "path": "packages/render-sdk/test/wait.test.ts",
       "accessCount": 1,
       "lastAccessed": 1782579844431,
+      "type": "file"
+    },
+    {
+      "path": "apps/docs/components/mdx.tsx",
+      "accessCount": 1,
+      "lastAccessed": 1782583675980,
       "type": "file"
     }
   ],

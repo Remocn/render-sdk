@@ -1,61 +1,53 @@
 {
-  "title": "PRD 07 \u2014 Lambda Adapter (@remocn/render-sdk/lambda)",
-  "source": ".omc/plans/07-lambda-adapter.md",
+  "title": "PRD 08 \u2014 Docs + README",
+  "source": ".omc/plans/08-docs-readme.md",
   "stories": [
     {
-      "id": "US-07-1",
-      "title": "RenderLambda adapter: config, options, start",
+      "id": "US-08-1",
+      "title": "Package README.md",
       "passes": true,
       "acceptanceCriteria": [
-        "src/lambda/index.ts exports RenderLambda(config: LambdaConfig): RenderAdapter<LambdaOptions>",
-        "LambdaConfig has region (AwsRegion), functionName, serveUrl; LambdaOptions has framesPerLambda?, webhook?, privacy?, outName?, maxRetries?",
-        "start() calls renderMediaOnLambda exactly once with region/functionName/serveUrl/composition=compositionId/codec(default h264)/inputProps + forwarded options",
-        "start() returns a handle that round-trips through decodeHandle to {adapter:'lambda', renderId, bucket, ext} where bucket=bucketName and ext=extForCodec(codec)",
-        "No StateStore / p-limit anywhere in the lambda path (renders fire immediately)"
+        "packages/render-sdk/README.md: what-it-is, install (+ optional peer deps @remotion/renderer / @remotion/lambda), quickstart for BOTH server and lambda",
+        "Quickstart imports match the real exports exactly: RenderSdk + waitForCompletion from '@remocn/render-sdk', RenderServer from '@remocn/render-sdk/server', RenderLambda from '@remocn/render-sdk/lambda'",
+        "Public surface table lists RenderSdk methods (start/getState/getUrl/download/waitForCompletion) with their real signatures",
+        "Link to the docs site; prose is English"
       ]
     },
     {
-      "id": "US-07-2",
-      "title": "getState maps getRenderProgress per the \u00a74 table",
+      "id": "US-08-2",
+      "title": "Fumadocs pages + nav",
       "passes": true,
       "acceptanceCriteria": [
-        "getState decodes the handle and calls getRenderProgress({renderId, bucketName:bucket, functionName, region})",
-        "done===true => {status:'done', progress:1}",
-        "fatalErrorEncountered===true => {status:'error', progress:overallProgress, error:errors[0]?.message}",
-        "overallProgress>0 (not done, no fatal) => {status:'rendering', progress:overallProgress}",
-        "otherwise => {status:'queued', progress:0}"
+        "Create apps/docs/content/docs/{index.mdx, public-surface.mdx, adapters.mdx, transport-recipes.mdx, provisioning.mdx, state-store.mdx, limitations.mdx} each with valid frontmatter (title + description)",
+        "Create apps/docs/content/docs/meta.json with pages in order: index, public-surface, adapters, transport-recipes, provisioning, state-store, limitations",
+        "Remove the starter apps/docs/content/docs/test.mdx",
+        "index.mdx covers the overview + responsibility boundary (where Remotion provisioning ends and the SDK begins; what is out of scope)",
+        "public-surface.mdx documents start/getState/getUrl/download/waitForCompletion with the real RenderInput/RenderState/WaitOptions types",
+        "adapters.mdx documents RenderServer (ServerConfig/ServerOptions) and RenderLambda (LambdaConfig/LambdaOptions) + a server-vs-lambda comparison table + a unified getUrl behavior table"
       ]
     },
     {
-      "id": "US-07-3",
-      "title": "getUrl + download from S3",
+      "id": "US-08-3",
+      "title": "Recipes (transport + provisioning) + home page",
       "passes": true,
       "acceptanceCriteria": [
-        "getUrl returns progress.outputFile (the S3 URL) when present",
-        "getUrl throws RenderError('not_found') when outputFile is null (render not ready)",
-        "download fetches getUrl and returns response.body as a web ReadableStream",
-        "download throws RenderError('adapter_error') on a non-ok fetch / missing body"
+        "transport-recipes.mdx covers a Next.js POST route (start), a GET poll route (getState), a GET download route (download), and a browser poll loop",
+        "provisioning.mdx covers bundle (server build step) and deploySite/deployFunction (lambda) as explicitly the CONSUMER's job, not the SDK's",
+        "state-store.mdx documents the StateStore SPI + InMemoryStore default + how to swap to Redis/SQL",
+        "limitations.mdx lists limitations (getUrl valid only when done; publicUrl serves nothing by itself) + out-of-scope (no cancel/list/delete/upload, no HTTP client)",
+        "apps/docs/app/(home)/page.tsx replaces the 'Hello World' starter with SDK-describing copy",
+        "Snippets do NOT document out-of-scope features (cancel/list/delete/upload)"
       ]
     },
     {
-      "id": "US-07-4",
-      "title": "Version-mismatch mapping + error classification",
+      "id": "US-08-4",
+      "title": "Build green + snippet/type accuracy",
       "passes": true,
       "acceptanceCriteria": [
-        "A Remotion version error thrown by renderMediaOnLambda is rethrown as RenderError with code 'version_mismatch'",
-        "Other renderMediaOnLambda failures are rethrown as RenderError with code 'render_failed'",
-        "The original error is preserved via the cause option"
-      ]
-    },
-    {
-      "id": "US-07-5",
-      "title": "Type-guard + integration + build",
-      "passes": true,
-      "acceptanceCriteria": [
-        "A type-guard test proves our Codec union is assignable to @remotion/lambda's ServerlessCodec",
-        "RenderLambda plugs into RenderSdk with options auto-typed; passing chromiumOptions is a compile error (@ts-expect-error)",
-        "bun run types => 0 errors; bun run build succeeds; dist/lambda/index.js keeps @remotion/lambda external (0 internals bundled)",
-        "bun test => all pass (server suite 56 + new lambda tests), 0 fail"
+        "bun --filter docs build is green with the new pages and nav renders in order",
+        "Every code snippet uses the FINAL type/config names from PRs 03-07 (no drift: Codec/RenderInput/RenderState/WaitOptions/ServerConfig/ServerOptions/LambdaConfig/LambdaOptions/RenderSdk/RenderServer/RenderLambda/waitForCompletion/InMemoryStore)",
+        "No snippet references a non-existent export or a wrong field name",
+        "code-reviewer confirms snippet/type accuracy vs the shipped API"
       ]
     }
   ]

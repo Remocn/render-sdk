@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd /Users/dev_wandry/projects/opensource/remocn-render-sdk; while kill -0 $(cat /private/tmp/claude-501/-Users-dev-wandry-projects-opensource-remocn-render-sdk/90eeeca7-e077-4b4c-bf6d-fc71...",
+  "error": "Exit code 143\nCommand timed out after 2m 0s",
+  "timestamp": "2026-06-27T18:26:22.903Z",
+  "retry_count": 1
+}

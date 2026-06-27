@@ -20,3 +20,5 @@
 {"t":0,"agent":"ad9bda2","agent_type":"unknown","event":"agent_stop","success":true}
 {"t":0,"agent":"ad9bda2","agent_type":"unknown","event":"agent_stop","success":true}
 {"t":0,"agent":"a47bf8c","agent_type":"unknown","event":"agent_stop","success":true}
+{"t":0,"agent":"system","event":"keyword_detected","keyword":"ralph"}
+{"t":0,"agent":"system","event":"mode_change","mode_from":"none","mode_to":"ralph"}

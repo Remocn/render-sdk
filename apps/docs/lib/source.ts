@@ -2,6 +2,7 @@ import { docs } from 'collections/server';
 import { loader } from 'fumadocs-core/source';
 import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
 import { docsContentRoute, docsImageRoute, docsRoute } from './shared';
+import type { DocMethods } from 'fumadocs-mdx/runtime/types';
 
 // See https://fumadocs.dev/docs/headless/source-api for more info
 export const source = loader({
@@ -29,7 +30,7 @@ export function getPageMarkdownUrl(page: (typeof source)['$inferPage']) {
 }
 
 export async function getLLMText(page: (typeof source)['$inferPage']) {
-  const processed = await page.data.getText('processed');
+  const processed = await (page.data as typeof page.data & DocMethods).getText('processed');
 
   return `# ${page.data.title} (${page.url})
 

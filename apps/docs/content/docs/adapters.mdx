@@ -1,0 +1,159 @@
+---
+title: Adapters
+description: RenderServer and RenderLambda — configuration, runtime behavior, and a side-by-side comparison.
+---
+
+An adapter implements the `RenderAdapter` interface and handles the actual execution of a render. Pass one adapter to `RenderSdk` at construction; swap it to change execution targets without touching the rest of your code.
+
+---
+
+## `RenderServer` — `@remocn/render-sdk/server`
+
+```ts
+import { RenderServer } from "@remocn/render-sdk/server";
+
+const adapter = RenderServer({
+  serveUrl: "http://localhost:3001", // or a local bundle path
+  workDir: "./out",
+  publicUrl: "https://cdn.example.com/renders",
+  concurrency: 2,
+});
+```
+
+Requires `@remotion/renderer` as an optional peer dependency. Install it separately:
+
+```bash
+bun add @remotion/renderer
+```
+
+### `ServerConfig`
+
+```ts
+type ServerConfig = {
+  serveUrl: string;
+  workDir: string;
+  publicUrl?: string;
+  concurrency?: number; // default 2
+  store?: StateStore;
+};
+```
+
+| field | required | description |
+|---|---|---|
+| `serveUrl` | yes | URL or local path of the Remotion bundle (from `bundle()`). |
+| `workDir` | yes | Directory where rendered files are written. Must exist and be writable. |
+| `publicUrl` | no | Base URL prepended to `${handle}.${ext}` by `getUrl()`. If omitted, `getUrl()` returns a bare `${handle}.${ext}` filename. |
+| `concurrency` | no | Maximum simultaneous renders. Controlled by `p-limit`. Default: `2`. |
+| `store` | no | `StateStore` for persisting render records. Default: `InMemoryStore()`. |
+
+### Runtime behavior
+
+- Renders are queued through a `p-limit` limiter. Incoming renders beyond `concurrency` wait in-process.
+- Progress is persisted to the `StateStore` as each frame completes.
+- Output is written to `${workDir}/${handle}.${ext}` where `ext` is determined by `codec` (default `mp4`).
+- **`getUrl()` does not verify the file exists.** Call it only after `status === "done"`.
+- **The SDK does not serve files over HTTP.** You must expose `workDir` as a static file directory using your own HTTP server (e.g. Next.js `public/`, Express `static()`, Nginx, CDN). `publicUrl` is just a base string — the SDK concatenates it with the filename.
+- `download()` opens a `ReadableStream` from the file at `${workDir}/${handle}.${ext}` using Node.js streams.
+
+### Per-render options (`ServerOptions`)
+
+```ts
+type ServerOptions = {
+  concurrency?: number;
+  chromiumOptions?: ChromiumOptions;
+  timeoutInMilliseconds?: number;
+};
+```
+
+Pass these as the second argument to `sdk.start(input, options)`.
+
+---
+
+## `RenderLambda` — `@remocn/render-sdk/lambda`
+
+```ts
+import { RenderLambda } from "@remocn/render-sdk/lambda";
+
+const adapter = RenderLambda({
+  region: "us-east-1",
+  functionName: "remotion-render",
+  serveUrl: "https://remotionlambda-xxxx.s3.us-east-1.amazonaws.com/sites/my-site/index.html",
+});
+```
+
+Requires `@remotion/lambda` as an optional peer dependency. Install it separately:
+
+```bash
+bun add @remotion/lambda
+```
+
+### `LambdaConfig`
+
+```ts
+type LambdaConfig = {
+  region: AwsRegion;
+  functionName: string;
+  serveUrl: string;
+};
+```
+
+| field | required | description |
+|---|---|---|
+| `region` | yes | AWS region where the Lambda function is deployed. |
+| `functionName` | yes | Name of the deployed Remotion Lambda function. |
+| `serveUrl` | yes | S3 URL of the deployed Remotion site (from `deploySite()`). |
+
+### Runtime behavior
+
+- `start()` calls `renderMediaOnLambda` from `@remotion/lambda`. There is no local queue — AWS Lambda scales horizontally.
+- State is **stateless**: the handle encodes `renderId`, `bucket`, and `ext`. No `StateStore` is used or accepted.
+- `getState()` calls `getRenderProgress` from `@remotion/lambda` and maps the result to `RenderState`.
+- `getUrl()` returns the S3 `outputFile` URL from `getRenderProgress`. **This is `null` until the render is `done`** — calling `getUrl()` before `status === "done"` throws `RenderError("not_found")`.
+- `download()` calls `fetch(await getUrl())` and returns `response.body` as a `ReadableStream`.
+
+### Per-render options (`LambdaOptions`)
+
+```ts
+type LambdaOptions = {
+  framesPerLambda?: number;
+  webhook?: { url: string; secret: string | null };
+  privacy?: "public" | "private";
+  outName?: string;
+  maxRetries?: number;
+};
+```
+
+Pass these as the second argument to `sdk.start(input, options)`.
+
+---
+
+## Comparison
+
+| | `RenderServer` | `RenderLambda` |
+|---|---|---|
+| peer dependency | `@remotion/renderer` | `@remotion/lambda` |
+| concurrency | local `p-limit` (default 2) | AWS Lambda auto-scaling |
+| state persistence | `StateStore` (default `InMemoryStore()`) | stateless handle encoding |
+| output storage | local disk (`workDir`) | S3 |
+| `getUrl()` returns | `${publicUrl}/${handle}.${ext}` | S3 `outputFile` URL |
+| `getUrl()` valid when | file exists on disk (after `done`) | `status === "done"` only |
+| `download()` | reads from disk | `fetch`es the S3 URL |
+| provisioning | run `bundle()` at startup | run `deploySite` + `deployFunction` in CI |
+| suitable for | local dev, small teams, single-server | high-volume, burst workloads, serverless |
+
+---
+
+## `RenderAdapter` interface
+
+If you want to write a custom adapter, implement:
+
+```ts
+interface RenderAdapter<O = unknown> {
+  start(input: RenderInput, options?: O): Promise<RenderHandle>;
+  getState(handle: RenderHandle): Promise<RenderState>;
+  getUrl(handle: RenderHandle): Promise<string>;
+  download(handle: RenderHandle): Promise<ReadableStream>;
+}
+```
+
+Pass the adapter to `new RenderSdk({ adapter })` and the `OptionsOf<typeof adapter>` type will be inferred automatically for `sdk.start()`.

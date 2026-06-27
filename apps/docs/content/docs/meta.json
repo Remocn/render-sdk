@@ -1,0 +1,12 @@
+{
+  "title": "Docs",
+  "pages": [
+    "index",
+    "public-surface",
+    "adapters",
+    "transport-recipes",
+    "provisioning",
+    "state-store",
+    "limitations"
+  ]
+}

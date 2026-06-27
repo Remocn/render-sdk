@@ -320,3 +320,51 @@ the /lambda subpath (root export stays remotion-free, like /server).
   render is enqueued on AWS, so returning the handle immediately is correct (no detached promise like
   server's `void limit(...)` — the cloud owns execution).
 - Next: PR 08 (docs + README) is now unblocked (both adapters frozen). PR 09 (CI) can land anytime.
+
+## PRD 08 — Docs + README — DONE (session f5a19b9f)
+
+### What was implemented
+Documented the frozen public surface: package README + 7 Fumadocs pages under apps/docs. Docs-only
+PR (no src/ touched). Since the SDK ships no HTTP/provisioning, the docs carry the transport +
+provisioning recipes as copy-paste (explicitly the consumer's job).
+
+### Files created / changed
+- `packages/render-sdk/README.md` (replaced stub): what-it-is, install (+ optional peers
+  @remotion/renderer / @remotion/lambda), server + lambda quickstarts, full API tables (RenderSdk
+  methods, RenderInput/WaitOptions/RenderState, RenderError codes, InMemoryStore factory, handle
+  helpers, codec utils, both adapters, standalone waitForCompletion, provisioning).
+- `apps/docs/content/docs/`: index.mdx (overview + responsibility boundary, ascii flow, adapter table,
+  nav Cards), public-surface.mdx (RenderSdk<A> + every method signature + getUrl table + RenderError
+  table + InMemoryStore + handle helpers + codec utils + full type reference), adapters.mdx
+  (RenderServer/RenderLambda config+options+runtime behavior, server-vs-lambda comparison table,
+  unified getUrl table, RenderAdapter interface), transport-recipes.mdx (shared sdk, POST start route,
+  GET poll route, GET download route, browser poll loop), provisioning.mdx (bundle for server;
+  deploySite/deployFunction/getOrCreateBucket for lambda — consumer's job), state-store.mdx (StateStore
+  SPI + InMemoryStore default + Redis/SQL swap), limitations.mdx (out-of-scope: list/cancel/delete/
+  upload/HTTP; server + lambda + general constraints).
+- `apps/docs/content/docs/meta.json`: nav order index→public-surface→adapters→transport-recipes→
+  provisioning→state-store→limitations.
+- `apps/docs/app/(home)/page.tsx`: replaced "Hello World" starter with SDK copy + /docs link.
+- Removed starter `apps/docs/content/docs/test.mdx`.
+
+### Verification evidence
+- `bun --filter docs build`: exit 0, all 7 docs pages prerendered (SSG), nav renders in order.
+- `grep cancelRender|listRenders|deleteRender|uploadAsset` over docs+README: empty (no out-of-scope).
+- code-reviewer: APPROVED — every snippet matches the shipped API (real module specifiers, real export
+  names, InMemoryStore() factory not `new`, correct method signatures, honest getUrl/boundary claims).
+- Deslop: fixed prose naming drift in index.mdx (`ServerAdapter`/`LambdaAdapter` → real
+  `RenderServer`/`RenderLambda`); post-deslop docs build still exit 0.
+
+### Learnings / patterns for future PRDs
+- Fumadocs (this app): every `content/docs/*.mdx` needs frontmatter `title` + `description` (pageSchema)
+  or the build fails. Nav is `content/docs/meta.json` `{ "title", "pages": [...basenames] }`. `Cards`/`Card`
+  are available in MDX with no import (registered in mdx-components). Avoid Tabs/Steps unless you import
+  from `fumadocs-ui/components/*` and verify the build. Fenced code blocks are NOT type-checked by the
+  build — accuracy is enforced by review, not the compiler.
+- Docs build = `bun --filter docs build` (~2 min). It's the only gate for a docs PR; runs the full Next
+  build incl. llms.txt + OG image routes.
+- Honest-boundary lines that must persist in docs: getUrl valid only when status==="done"; server
+  publicUrl is just a base string (SDK serves nothing — expose workDir yourself); lambda getUrl throws
+  not_found before done; InMemoryStore() is a factory.
+- Next: PR 09 (CI / GitHub Actions, depends only on 02) is the last remaining PRD — runs types/build/test
+  for packages/render-sdk + the docs build.
