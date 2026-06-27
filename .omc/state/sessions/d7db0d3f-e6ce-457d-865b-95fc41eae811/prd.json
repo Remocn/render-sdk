@@ -1,0 +1,43 @@
+{
+  "title": "PRD 04 \u2014 State Store SPI + InMemoryStore",
+  "source": ".omc/plans/04-state-store.md",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "src/store/types.ts \u2014 StateStore interface + RenderRecord",
+      "priority": 1,
+      "passes": true,
+      "acceptanceCriteria": [
+        "RenderRecord type: status RenderStatus, progress number (0..1), error?, codec Codec, createdAt number, meta? Record<string,unknown>",
+        "StateStore interface: create(handle, initial): Promise<void>; get(handle): Promise<RenderRecord|null>; update(handle, patch: Partial<RenderRecord>): Promise<void>; delete(handle): Promise<void>",
+        "Imports RenderStatus/RenderHandle/Codec from core types (no redefinition), no @remotion/* import"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "src/store/in-memory.ts \u2014 InMemoryStore() Map-backed factory",
+      "priority": 2,
+      "passes": true,
+      "acceptanceCriteria": [
+        "InMemoryStore(): StateStore backed by a Map keyed by raw handle string",
+        "create overwrites an existing handle without throwing (documented)",
+        "update on a missing handle throws RenderError('not_found', ...)",
+        "get on a missing handle resolves null (no throw); delete is idempotent (double-delete no throw)",
+        "All methods return resolved Promises (sync-in/async-out); no @remotion/* import"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Re-export from src/index.ts + tests + green build",
+      "priority": 3,
+      "passes": true,
+      "acceptanceCriteria": [
+        "src/index.ts re-exports InMemoryStore (value) and StateStore, RenderRecord (types)",
+        "test/in-memory.test.ts: full CRUD lifecycle, partial update preserves fields, missing-handle update throws not_found, idempotent delete, createdAt/meta round-trip",
+        "bun test exits 0 (all pass); bun run types (tsc --noEmit) 0 errors",
+        "bun run build exits 0; dist/index.d.ts contains no '@remotion' reference",
+        "Built dist re-exports InMemoryStore at runtime (importable)"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "active": true,
+  "skill_name": "ai-slop-cleaner",
+  "session_id": "d7db0d3f-e6ce-457d-865b-95fc41eae811",
+  "started_at": "2026-06-27T16:54:45.952Z",
+  "last_checked_at": "2026-06-27T16:54:45.952Z",
+  "reinforcement_count": 0,
+  "max_reinforcements": 5,
+  "stale_ttl_ms": 900000,
+  "_meta": {
+    "written_at": "2026-06-27T16:54:45.952Z",
+    "mode": "skill-active",
+    "sessionId": "d7db0d3f-e6ce-457d-865b-95fc41eae811"
+  }
+}

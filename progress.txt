@@ -77,3 +77,85 @@ entrypoints that build green prove the toolchain for PRs 03–08.
 - Bun.build `root: srcDir` is what preserves the dist/server, dist/lambda subdir layout so
   subpath export paths line up; without it everything flattens to dist/.
 - Next: PR 03 (core types, errors, handle, codecs, SPI) writes into src/ — packaging frozen.
+
+## PRD 03 — Core: Types, Errors, Handle, Codecs, Adapter SPI — DONE (session d7db0d3f)
+
+### What was implemented
+The dependency-free core surface — the contract every later PR (store/sdk/adapters) imports.
+Zero `@remotion/*` references anywhere in src, so the root export's .d.ts stays remotion-free.
+
+### Files created (packages/render-sdk/src/)
+- `types.ts`: RenderStatus, branded RenderHandle (`string & {readonly __brand: unique symbol}`),
+  own Codec union (h264,h265,vp8,vp9,gif,prores,mp3,aac,wav), PixelFormat (8 fmts), RenderState,
+  RenderInput (compositionId required; codec defaults to h264 — documented), WaitOptions.
+- `errors.ts`: RenderError extends Error; readonly `code` union (invalid_input|render_failed|
+  timeout|not_found|version_mismatch|adapter_error); ctor(code,message,{cause?}) sets name +
+  forwards cause to super.
+- `handle.ts`: `~`-delimited, adapter-tag-first scheme. encodeServerHandle -> `s~jobId`;
+  encodeLambdaHandle -> `l~renderId~bucket~ext`; decodeHandle returns DecodedHandle union, throws
+  RenderError("not_found") on garbage / wrong arity / blank fields. Fixed 4 segments for lambda
+  so a bucket containing "." round-trips.
+- `codecs.ts`: CODEC_EXT exhaustive Record<Codec,string>; extForCodec(codec?) defaults h264->mp4.
+- `adapter.ts`: RenderAdapter<TOptions> SPI (start/getState/getUrl/download) + OptionsOf<A> helper.
+- `index.ts`: kept VERSION="0.0.0"; re-exports the full public surface (type-only where types).
+- Tests: handle.test.ts (round-trip both adapters, "." bucket, 10 garbage cases all -> not_found),
+  codecs.test.ts (full map + default), errors.test.ts (instanceof/code/cause/all codes).
+
+### Verification evidence (all exit 0)
+- `bun run types` (tsc --noEmit): 0 errors.
+- `bun run build`: exit 0; dist now 11 files (index + 5 core .d.ts + server/lambda + 3 .js).
+- `bun test`: 20 pass, 0 fail.
+- `grep -rl "@remotion" dist`: none (root .d.ts remotion-free confirmed).
+- node import of built dist/index.js: decode/extForCodec/RenderError instanceof all work.
+
+### Learnings / patterns for future PRDs
+- Branded RenderHandle breaks `expect(handle).toBe("s~abc")` — bun's toBe infers `expected` from
+  the branded actual (NoInfer<RenderHandle>), so a plain string literal isn't assignable. Cast the
+  actual: `expect(handle as string).toBe(...)`. Runtime value is a normal string.
+- tsc preserves JSDoc into .d.ts, so a comment containing the literal `@remotion` will trip a
+  `grep "@remotion" dist`. Keep the "remotion-free" rationale in comments without the `@remotion`
+  token (lowercase "remotion" is fine).
+- decodeHandle uses split("~") with fixed segment counts (server=2, lambda=4) + a blank-field
+  guard (trim().length===0) — this is what rejects `s~` and `l~r~ ~mp4` while letting `my.bucket`
+  through. region/functionName intentionally NOT in the handle (come from adapter config).
+- Next: PR 04 (StateStore + InMemoryStore) and PR 05 (RenderSdk + waitForCompletion) import these
+  core types — do not redefine them.
+
+## PRD 04 — State Store SPI + InMemoryStore — DONE (session d7db0d3f)
+
+### What was implemented
+The progress source-of-truth SPI (server adapter writes, getState reads; lambda does not use it)
+plus the default Map-backed InMemoryStore. Remotion-free, sync-in/async-out.
+
+### Files created (packages/render-sdk/src/store/)
+- `types.ts`: RenderRecord { status, progress (0..1), error?, codec, createdAt, meta? } imported
+  RenderStatus/RenderHandle/Codec from ../types (no redefinition). StateStore interface:
+  create/get/update/delete, all Promise-returning. JSDoc documents semantics (overwrite, null,
+  not_found, idempotent delete).
+- `in-memory.ts`: InMemoryStore(): StateStore over `new Map<string,RenderRecord>()` keyed by raw
+  handle. create overwrites; update spreads {...existing, ...patch} or throws
+  RenderError("not_found") on missing; get -> record ?? null; delete via Map.delete (idempotent).
+- `index.ts`: added `export { InMemoryStore }` + `export type { StateStore, RenderRecord }`.
+- `test/in-memory.test.ts`: CRUD lifecycle, partial-update field preservation, missing-update
+  not_found, get-missing null, idempotent double-delete, createdAt/meta round-trip, overwrite,
+  store-instance independence (8 tests).
+
+### Also (user request, PRD 03 handle.ts, behavior unchanged)
+- Extracted decodeHandle inline validation into named guards: rejectEmptyHandle,
+  rejectMalformedServerHandle, rejectMalformedLambdaHandle, rejectUnknownAdapterTag. decodeHandle
+  now reads as a sequence of named rejects. All 28 tests still green.
+
+### Verification evidence (all exit 0)
+- `bun run types`: 0 errors. `bun run build`: 0; dist now 13 files (+store/types.d.ts,
+  store/in-memory.d.ts). `bun test`: 28 pass, 0 fail. `grep @remotion dist`: none.
+- node import of built dist: InMemoryStore is a function; create/update/get/delete + not_found
+  throw all behave per spec.
+
+### Learnings / patterns for future PRDs
+- Bun.build `root: src` keeps the dist/store subdir layout (mirrors dist/server, dist/lambda) so
+  new subdirs just work — no build-script change needed when adding src subfolders.
+- InMemoryStore stores records by reference (update replaces with a fresh spread object). Fine for
+  v1 single-process; a Redis/SQL StateStore would serialize. Returned records are snapshots —
+  callers must go through update() to persist mutations.
+- Next: PR 05 (RenderSdk + waitForCompletion) wires the default InMemoryStore; PR 06 (server
+  adapter) writes RenderRecords. Both import StateStore/RenderRecord — do not redefine.
