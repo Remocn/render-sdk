@@ -25,3 +25,6 @@ export type { RenderAdapter, OptionsOf } from "./adapter";
 
 export { InMemoryStore } from "./store/in-memory";
 export type { StateStore, RenderRecord } from "./store/types";
+
+export { RenderSdk, type RenderSdkConfig } from "./sdk";
+export { waitForCompletion } from "./wait";

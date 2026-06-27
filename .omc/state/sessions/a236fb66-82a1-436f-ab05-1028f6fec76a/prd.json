@@ -1,0 +1,54 @@
+{
+  "task": "PRD 05 — RenderSdk facade + waitForCompletion poll loop (.omc/plans/05-render-sdk-wait.md)",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "waitForCompletion poll loop (src/wait.ts)",
+      "passes": true,
+      "acceptanceCriteria": [
+        "src/wait.ts exports `waitForCompletion(adapter: Pick<RenderAdapter<unknown>,'getState'>, handle, opts?): Promise<RenderState>`",
+        "Polls getState every intervalMs (default 1000), calls opts.onProgress(progress) each tick",
+        "Resolves the final state when status==='done'",
+        "Throws RenderError('render_failed', state.error) when status==='error'",
+        "Rejects RenderError('timeout', ...) when timeoutMs exceeded",
+        "Rejects RenderError('adapter_error','aborted') when opts.signal is aborted; abort interrupts mid-wait (abortable delay, not just between polls)",
+        "No @remotion/* import anywhere in the file"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "RenderSdk<A> facade (src/sdk.ts)",
+      "passes": true,
+      "acceptanceCriteria": [
+        "src/sdk.ts exports class RenderSdk<A extends RenderAdapter<any>> with constructor({ adapter, store? })",
+        "start(input, options?: OptionsOf<A>), getState, getUrl, download all delegate to the adapter",
+        "waitForCompletion(handle, opts?) method delegates to the standalone wait loop using this.adapter",
+        "start's options arg is inferred as the adapter's options type (OptionsOf<A>) with no `as` cast",
+        "store is accepted and held (exposed/retained) but not read/written by the SDK itself",
+        "No @remotion/* import anywhere in the file"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Re-export RenderSdk + waitForCompletion from index.ts",
+      "passes": true,
+      "acceptanceCriteria": [
+        "src/index.ts re-exports RenderSdk and waitForCompletion",
+        "Built dist root .d.ts stays remotion-free (grep -rl '@remotion' dist returns nothing)"
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Tests: delegation, wait semantics, type narrowing",
+      "passes": true,
+      "acceptanceCriteria": [
+        "test/sdk.test.ts: fake adapter verifies all five methods delegate; store held/passed through",
+        "test/wait.test.ts: scripted adapter queued->rendering(0.5)->done asserts onProgress callbacks + resolution; separate cases for error (throws render_failed), timeout, abort",
+        "A type-level test (@ts-expect-error or expectTypeOf) encodes options narrowing: correct adapter option compiles, wrong-shape option is a compile error",
+        "bun run types: 0 errors",
+        "bun run build: exit 0",
+        "bun test: all pass, 0 fail"
+      ]
+    }
+  ]
+}
