@@ -1,6 +1,6 @@
 ---
-title: Overview
-description: What @remocn/render-sdk is, what it does, and what it deliberately does not do.
+title: Introducing
+description: What @remocn/render-sdk is, the responsibility boundary, and how it works.
 ---
 
 `@remocn/render-sdk` is a backend-swappable render engine for [Remotion](https://remotion.dev). It gives you one API to start renders, poll progress, get output URLs, and stream output bytes — regardless of whether the render runs on your own server or on AWS Lambda.
@@ -34,14 +34,3 @@ your code
 |---|---|---|---|
 | `RenderServer` | `@remotion/renderer` | your Node.js process | `p-limit` (default concurrency 2) |
 | `RenderLambda` | `@remotion/lambda` | AWS Lambda | AWS auto-scaling |
-
-## Pages in this section
-
-<Cards>
-  <Card title="Public Surface" href="/docs/public-surface" description="RenderSdk class, all methods, types, and standalone helpers." />
-  <Card title="Adapters" href="/docs/adapters" description="RenderServer and RenderLambda config, behavior, and comparison." />
-  <Card title="Transport Recipes" href="/docs/transport-recipes" description="Next.js App Router API routes and browser poll loop." />
-  <Card title="Provisioning" href="/docs/provisioning" description="How to bundle for server, and deploy to Lambda." />
-  <Card title="State Store" href="/docs/state-store" description="StateStore interface and InMemoryStore." />
-  <Card title="Limitations" href="/docs/limitations" description="Known constraints and out-of-scope features." />
-</Cards>

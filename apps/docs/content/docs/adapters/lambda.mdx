@@ -1,0 +1,58 @@
+---
+title: Lambda
+description: RenderLambda adapter — configuration, runtime behavior, and per-render options.
+---
+
+```ts
+import { RenderLambda } from "@remocn/render-sdk/lambda";
+
+const adapter = RenderLambda({
+  region: "us-east-1",
+  functionName: "remotion-render",
+  serveUrl: "https://remotionlambda-xxxx.s3.us-east-1.amazonaws.com/sites/my-site/index.html",
+});
+```
+
+Requires `@remotion/lambda` as an optional peer dependency. Install it separately:
+
+```bash
+bun add @remotion/lambda
+```
+
+## `LambdaConfig`
+
+```ts
+type LambdaConfig = {
+  region: AwsRegion;
+  functionName: string;
+  serveUrl: string;
+};
+```
+
+| field | required | description |
+|---|---|---|
+| `region` | yes | AWS region where the Lambda function is deployed. |
+| `functionName` | yes | Name of the deployed Remotion Lambda function. |
+| `serveUrl` | yes | S3 URL of the deployed Remotion site (from `deploySite()`). |
+
+## Runtime behavior
+
+- `start()` calls `renderMediaOnLambda` from `@remotion/lambda`. There is no local queue — AWS Lambda scales horizontally.
+- State is **stateless**: the handle encodes `renderId`, `bucket`, and `ext`. No `StateStore` is used or accepted.
+- `getState()` calls `getRenderProgress` from `@remotion/lambda` and maps the result to `RenderState`.
+- `getUrl()` returns the S3 `outputFile` URL from `getRenderProgress`. **This is `null` until the render is `done`** — calling `getUrl()` before `status === "done"` throws `RenderError("not_found")`.
+- `download()` calls `fetch(await getUrl())` and returns `response.body` as a `ReadableStream`.
+
+## Per-render options (`LambdaOptions`)
+
+```ts
+type LambdaOptions = {
+  framesPerLambda?: number;
+  webhook?: { url: string; secret: string | null };
+  privacy?: "public" | "private";
+  outName?: string;
+  maxRetries?: number;
+};
+```
+
+Pass these as the second argument to `sdk.start(input, options)`.
