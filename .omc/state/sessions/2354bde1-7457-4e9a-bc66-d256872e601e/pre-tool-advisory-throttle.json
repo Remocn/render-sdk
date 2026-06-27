@@ -1,0 +1,30 @@
+{
+  "version": 1,
+  "entries": {
+    "466399dafa2d20f60587180bad0a07358eb7f2bce724df0ff682f038ad33f5ad": {
+      "last_emitted_at_ms": 1782575987165,
+      "message": "Read multiple files in parallel when possible for faster analysis."
+    },
+    "4f724b80883ea386f8244114631ec01e9418ce58036e4b82c384d30345ecd68c": {
+      "last_emitted_at_ms": 1782575973108,
+      "message": "Spawning agent: oh-my-claudecode:critic (sonnet) | Task: Verify PRD 01 monorepo"
+    },
+    "79a93d4a2f8f50b95f852280616242fee1855dc99a3c75211917f55e72e95fae": {
+      "last_emitted_at_ms": 1782575943186,
+      "message": "Use parallel execution for independent tasks. Use run_in_background for long operations (npm install, builds, tests)."
+    },
+    "1bb6914bc42b891c26d46c8ae2fd4f44071f59862e89dc550f4c82877b700216": {
+      "last_emitted_at_ms": 1782575933098,
+      "message": "The boulder never stops. Continue until all tasks complete."
+    },
+    "4b56c571f2cfa38f623a26034c6e7832a23e9a5d43a04a98ad2908ebcfa164c5": {
+      "last_emitted_at_ms": 1782575786282,
+      "message": "Spawning agent: oh-my-claudecode:architect (sonnet) | Task: Verify PRD 01 acceptance"
+    },
+    "445ed27a3872b681d98190bae61ccb84954e1bc4e140df5370be958dee776b3a": {
+      "last_emitted_at_ms": 1782575627569,
+      "message": "Verify changes work after editing. Test functionality before marking complete."
+    }
+  },
+  "updated_at": "2026-06-27T15:59:47.165Z"
+}

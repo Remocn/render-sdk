@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"echo \\\"=== Session PRD ===\\\" && ls -la .omc/state/sessions/2354bde1-7457-4e9a-bc66-d256872e601e/ 2>/dev/null; echo \\\"=== Legacy PRD ===\\\" && ls -la prd.json .omc/prd.json 2>/dev/null; echo...",
+  "error": "Exit code 1\n=== Session PRD ===\ntotal 40\ndrwxr-xr-x@ 7 dev_wandry  staff  224 Jun 27 18:53 .\ndrwxr-xr-x@ 4 dev_wandry  staff  128 Jun 27 18:52 ..\n-rw-------@ 1 dev_wandry  staff  180 Jun 27 18:52 hud-state.json\n-rw-------@ 1 dev_wandry  staff  342 Jun 27 18:53 pre-tool-advisory-throttle.json\n-rw-------@ 1 dev_wandry  staff  485 Jun 27 18:52 ralph-state.json\n-rw-------@ 1 dev_wandry  staff  186 Jun 27 18:52 session-started.json\n-rw-------@ 1 dev_wandry  staff  451 Jun 27 18:52 ultrawork-state.jso...",
+  "timestamp": "2026-06-27T15:53:03.508Z",
+  "retry_count": 1
+}
