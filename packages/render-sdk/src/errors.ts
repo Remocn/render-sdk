@@ -50,3 +50,9 @@ export function rejectMalformedLambdaHandle(parts: string[], handle: string): vo
 export function rejectUnknownAdapterTag(handle: string): never {
   throw new RenderError("not_found", `Unknown handle adapter tag: ${handle}`);
 }
+
+export function classifyRenderError(message: string): RenderError["code"] {
+  return /version/i.test(message) && /match/i.test(message)
+    ? "version_mismatch"
+    : "render_failed";
+}

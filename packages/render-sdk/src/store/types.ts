@@ -1,3 +1,4 @@
+import type { RenderError } from "../errors";
 import type { Codec, RenderHandle, RenderStatus } from "../types";
 
 /**
@@ -10,6 +11,12 @@ export type RenderRecord = {
   /** Normalized progress in the range 0..1. */
   progress: number;
   error?: string;
+  /**
+   * Machine-readable error classification, written alongside `error` when a
+   * render fails. Mirrors {@link RenderError}'s `code` so consumers can branch
+   * on e.g. `version_mismatch` vs `render_failed` without parsing the message.
+   */
+  errorCode?: RenderError["code"];
   /** Output codec — resolved to an extension for `getUrl` / `download`. */
   codec: Codec;
   createdAt: number;

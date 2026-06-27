@@ -212,3 +212,59 @@ remotion-free, verified against fake/scripted in-memory adapters (no real backen
   this wiring direction when implementing PR 06 — do not make the SDK seed the store.
 - Next: PR 06 (server adapter, depends 03/04/05) + PR 07 (lambda adapter, depends 03/05) are now
   unblocked and independent — parallel branches. Both plug into a real `new RenderSdk({ adapter })`.
+
+## PRD 06 — Server Adapter (`@remocn/render-sdk/server`) — DONE (session 90eeeca7)
+
+### What was implemented
+`RenderServer(config)` — the in-process adapter over `@remotion/renderer` with a `p-limit`
+limiter, store-backed progress, disk output, and getUrl/download from disk. Remotion stays an
+optional peer dep imported only by the /server subpath (root export rema­ins remotion-free).
+
+### Files created / changed (packages/render-sdk/)
+- `src/server/index.ts`: RenderServer(config: ServerConfig): RenderAdapter<ServerOptions>.
+  ServerConfig{serveUrl, workDir(req), publicUrl?, concurrency?(def 2), store?(def fresh
+  InMemoryStore)}; ServerOptions{concurrency?, chromiumOptions?, timeoutInMilliseconds?}.
+  start() → codec(default h264) → encodeServerHandle(crypto.randomUUID()) → store.create(queued)
+  → `void limit(() => runRender(...))` DETACHED → returns handle. runRender: store.update(rendering)
+  → selectComposition → mkdir -p workDir → renderMedia({outputLocation:`${workDir}/${handle}.${ext}`,
+  onProgress→store.update(clamp01(p.progress))}) → store.update(done,1); catch → store.update(error,
+  message, errorCode=classify). getState maps record→{status,progress,error?}, missing→not_found.
+  getUrl: publicUrl ? `${publicUrl}/${handle}.${ext}` : `${handle}.${ext}` (trailing slash trimmed),
+  ext from stored codec. download: stat file → Readable.toWeb(createReadStream) as unknown as
+  ReadableStream; missing record/file → not_found.
+- `src/store/types.ts`: additive optional `errorCode?: RenderError["code"]` on RenderRecord (the
+  channel that surfaces version_mismatch vs render_failed — RenderState has no code field).
+- Tests (6 files + shared `test/_server-harness.ts`): server.start / .limiter / .url / .download /
+  .error / .types. Harness mocks `@remotion/renderer` via `mock.module` + dynamic
+  `await import("../src/server")`, with mutable `remotion.selectImpl/renderImpl` swapped per test,
+  plus deferred()/flush()/makeWorkDir()/seedDone()/expectRenderErrorCode() helpers.
+
+### Verification evidence (all exit 0)
+- `bun run types`: 0 errors. `bun run build`: success. `bun test`: 56 pass / 0 fail across 13 files
+  (was 39/7). dist/server/index.js keeps `import { renderMedia, selectComposition } from
+  "@remotion/renderer"` external (0 remotion internals bundled). Architect reviewer: APPROVED
+  against all PRD-06 acceptance criteria. Deslop pass: consolidated duplicate `seed` helper into
+  harness `seedDone`, trimmed fakeComposition to 5 fields; post-deslop regression still 56 pass.
+
+### Learnings / patterns for future PRDs
+- Mocking a statically-imported native peer dep in bun: register `mock.module("@remotion/renderer",
+  factory)` at the TOP of the test file, THEN `const { RenderServer } = await import("../src/server")`
+  — static top imports run before top-level code, so the adapter must be dynamically imported AFTER
+  the mock. Factory delegates to a mutable `remotion` object so each test swaps impls without
+  re-registering. Each test file registers its own mock.module; works across the 13-file suite.
+- `Readable.toWeb()` returns a `node:stream/web` ReadableStream that TS treats as nominally distinct
+  from the global `ReadableStream` (getReader overload arity differs) — `as unknown as ReadableStream`
+  is the sanctioned bridge; identical at runtime.
+- remotion v4 (4.0.484): ENABLE_V5_BREAKING_CHANGES=false so licenseKey is OPTIONAL — renderMedia
+  needs only {codec, composition, serveUrl}. selectComposition returns Promise<VideoConfig> directly.
+  remotion's validPixelFormats == our PixelFormat union exactly, and our Codec ⊂ remotion Codec, so
+  input.codec/pixelFormat forward without casts (codec type-guard test locks this).
+- Detached render: failures are caught INSIDE runRender and written to the store, so the unawaited
+  `limit(...)` promise never rejects (no unhandledRejection). Concurrency is provable deterministically
+  by gating renderMedia with a deferred() under concurrency:1 — 2nd job's runRender never starts, so
+  its record stays `queued`.
+- errorCode lives on RenderRecord, not RenderState (kept the public poll shape unchanged). version
+  classification is reactive: /version/i && /match/i on the message → version_mismatch, else
+  render_failed (matches the locked design record — no proactive version probing).
+- Next: PR 07 (lambda adapter, depends 03/05) is the sibling backend; PR 08 (docs) waits on both
+  adapters; PR 09 (CI) can land anytime after 02.

@@ -42,8 +42,8 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk && npx tsc --noEmit 2>&1",
-    "testCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk\necho \"===TYPES===\" && bun run types > /tmp/rt_types.log 2>&1; echo \"types: $?\"; tail -8 /tmp/rt_types.log\necho \"===BUILD===\" && bun run build > /tmp/rt_build.log 2>&1; echo \"build: $?\"\necho \"===TEST===\" && bun test > /tmp/rt_test.log 2>&1; echo \"test: $?\"; grep -E \"[0-9]+ pass|[0-9]+ fail\" /tmp/rt_test.log | tail -3\necho \"===DIST COUNT===\" && find dist -type f | wc -l | tr -d ' '\necho \"===GREP @remotion ALL DIST===\" && grep -rl \"@remotion\" dist || echo \"none reference @remotion\"\necho \"===RUNTIME IMPORT===\" && cd /Users/dev_wandry/projects/opensource/remocn-render-sdk && node --input-type=module -e \"\nimport('./packages/render-sdk/dist/index.js').then(m => {\n  const h = m.encodeServerHandle('abc');\n  const d = m.decodeHandle(h);\n  console.log('decode:', JSON.stringify(d));\n  console.log('ext:', m.extForCodec());\n  console.log('err instanceof Error:', new m.RenderError('not_found','x') instanceof Error);\n  console.log('VERSION:', m.VERSION);\n});\"",
+    "buildCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk && bun run types 2>&1 | tail -5; echo \"---BUILD---\"; bun run build 2>&1 | tail -5; echo \"---TEST---\"; bun test 2>&1 | tail -15",
+    "testCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk && bun run types 2>&1 | tail -5; echo \"---BUILD---\"; bun run build 2>&1 | tail -5; echo \"---TEST---\"; bun test 2>&1 | tail -15",
     "lintCommand": null,
     "devCommand": "npm run dev",
     "scripts": {
@@ -140,20 +140,50 @@
   "hotPaths": [
     {
       "path": "packages/render-sdk/src/index.ts",
-      "accessCount": 10,
-      "lastAccessed": 1782579828386,
+      "accessCount": 11,
+      "lastAccessed": 1782580409980,
       "type": "file"
     },
     {
       "path": "progress.txt",
+      "accessCount": 8,
+      "lastAccessed": 1782580371557,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/server/index.ts",
       "accessCount": 7,
-      "lastAccessed": 1782579746485,
+      "lastAccessed": 1782580991027,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/store/types.ts",
+      "accessCount": 7,
+      "lastAccessed": 1782580991391,
       "type": "file"
     },
     {
       "path": "packages/render-sdk/src/handle.ts",
+      "accessCount": 7,
+      "lastAccessed": 1782581010432,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/types.ts",
+      "accessCount": 6,
+      "lastAccessed": 1782581009980,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/errors.ts",
+      "accessCount": 6,
+      "lastAccessed": 1782581011872,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/adapter.ts",
       "accessCount": 5,
-      "lastAccessed": 1782579221813,
+      "lastAccessed": 1782581009034,
       "type": "file"
     },
     {
@@ -175,24 +205,6 @@
       "type": "file"
     },
     {
-      "path": "packages/render-sdk/src/server/index.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782578465870,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/types.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782579766808,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/errors.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782579768453,
-      "type": "file"
-    },
-    {
       "path": "packages/render-sdk/test/handle.test.ts",
       "accessCount": 4,
       "lastAccessed": 1782579802350,
@@ -200,8 +212,32 @@
     },
     {
       "path": "packages/render-sdk/package.json",
-      "accessCount": 3,
-      "lastAccessed": 1782576772960,
+      "accessCount": 4,
+      "lastAccessed": 1782580402921,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/test/server.error.test.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782580998639,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/codecs.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782581010915,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/test/_server-harness.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782581182756,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/test/server.url.test.ts",
+      "accessCount": 4,
+      "lastAccessed": 1782581191247,
       "type": "file"
     },
     {
@@ -217,21 +253,21 @@
       "type": "file"
     },
     {
-      "path": "packages/render-sdk/src/adapter.ts",
-      "accessCount": 3,
-      "lastAccessed": 1782579766203,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/store/types.ts",
-      "accessCount": 3,
-      "lastAccessed": 1782579768029,
-      "type": "file"
-    },
-    {
       "path": "packages/render-sdk/test/in-memory.test.ts",
       "accessCount": 3,
       "lastAccessed": 1782579802130,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/sdk.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782581012326,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/src/store/in-memory.ts",
+      "accessCount": 3,
+      "lastAccessed": 1782581012725,
       "type": "file"
     },
     {
@@ -277,12 +313,6 @@
       "type": "file"
     },
     {
-      "path": "packages/render-sdk/src/codecs.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782578434191,
-      "type": "file"
-    },
-    {
       "path": "packages/render-sdk/test/codecs.test.ts",
       "accessCount": 2,
       "lastAccessed": 1782578439813,
@@ -295,15 +325,39 @@
       "type": "file"
     },
     {
-      "path": "packages/render-sdk/src/store/in-memory.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782579010424,
-      "type": "file"
-    },
-    {
       "path": "README.md",
       "accessCount": 2,
       "lastAccessed": 1782579753048,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/test/sdk.test.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782580410957,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/test/server.start.test.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782580995746,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/test/server.limiter.test.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782580996213,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/test/server.download.test.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782580997632,
+      "type": "file"
+    },
+    {
+      "path": "packages/render-sdk/test/server.types.test.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782580998816,
       "type": "file"
     },
     {
@@ -313,21 +367,9 @@
       "type": "file"
     },
     {
-      "path": "packages/render-sdk/src/sdk.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782579824728,
-      "type": "file"
-    },
-    {
       "path": "packages/render-sdk/test/wait.test.ts",
       "accessCount": 1,
       "lastAccessed": 1782579844431,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/sdk.test.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782579862006,
       "type": "file"
     }
   ],
