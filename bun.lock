@@ -4,6 +4,13 @@
   "workspaces": {
     "": {
       "name": "remotion-render-sdk",
+      "devDependencies": {
+        "typescript": "^6.0.3",
+      },
+    },
+    "apps/docs": {
+      "name": "docs",
+      "version": "0.0.0",
       "dependencies": {
         "fumadocs-core": "16.10.5",
         "fumadocs-mdx": "15.0.12",
@@ -372,6 +379,8 @@
     "detect-node-es": ["detect-node-es@1.1.0", "", {}, "sha512-ypdmJU/TbBby2Dxibuv7ZLW3Bs1QEmM7nHjEANfohJLvE0XVujisn1qPJcZxg+qDucsr+bP6fLD1rPS3AhJ7EQ=="],
 
     "devlop": ["devlop@1.1.0", "", { "dependencies": { "dequal": "^2.0.0" } }, "sha512-RWmIqhcFf1lRYBvNmr7qTNuyCt/7/ns2jbpp1+PalgE/rDQcBT0fioSMUpJ93irlUhC5hrg4cYqe6U+0ImW0rA=="],
+
+    "docs": ["docs@workspace:apps/docs"],
 
     "enhanced-resolve": ["enhanced-resolve@5.21.6", "", { "dependencies": { "graceful-fs": "^4.2.4", "tapable": "^2.3.3" } }, "sha512-aNnGCvbJ/RIyWo1IuhNdVjnNF+EjH9wpzpNHt+ci/m9He9LJvUN8wrCcXjp9cWsGNAuvSpVFTx/vraAFQ8qGjQ=="],
 

@@ -1,0 +1,62 @@
+{
+  "title": "PRD 01 \u2014 Workspace Skeleton (bun monorepo)",
+  "source": ".omc/plans/01-workspace-skeleton.md",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Move docs app into apps/docs as a unit",
+      "priority": 1,
+      "passes": true,
+      "acceptanceCriteria": [
+        "apps/docs/ contains app/, content/, components/, lib/, source.config.ts, next.config.mjs, postcss.config.mjs, proxy.ts, tsconfig.json, README.md (moved, not copied)",
+        "Repo root no longer contains app/, content/, components/, lib/, source.config.ts, next.config.mjs, postcss.config.mjs, proxy.ts",
+        "No stale root .source/ directory remains",
+        "apps/docs/tsconfig.json keeps aliases @/* -> ./* and collections/* -> ./.source/* unchanged"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "apps/docs/package.json is the docs workspace package",
+      "priority": 2,
+      "passes": true,
+      "acceptanceCriteria": [
+        "apps/docs/package.json has name 'docs' and private true",
+        "All existing docs dependencies/devDependencies preserved",
+        "Scripts dev/build/start/types:check/postinstall preserved unchanged"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Root package.json becomes private workspace root",
+      "priority": 3,
+      "passes": true,
+      "acceptanceCriteria": [
+        "Root package.json has private:true and workspaces:[\"apps/*\",\"packages/*\"]",
+        "Root has no app runtime dependencies (moved to apps/docs)",
+        "Root has delegating scripts: dev (bun --filter docs dev), docs:build (bun --filter docs build), and a build script",
+        "Root keeps typescript devDependency"
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "packages/ empty slot exists",
+      "priority": 4,
+      "passes": true,
+      "acceptanceCriteria": [
+        "packages/.gitkeep exists",
+        "packages/ contains no render-sdk content"
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Workspace installs and docs build green",
+      "priority": 5,
+      "passes": true,
+      "acceptanceCriteria": [
+        "bun install at root completes with a single hoisted root node_modules + bun.lock",
+        "bun --filter docs build (or cd apps/docs && bun run build) builds docs site green with no broken imports; @/* and collections/* resolve from apps/docs",
+        ".gitignore remains valid for the new layout (node_modules, .next, .source, *.tsbuildinfo, next-env.d.ts match by basename)"
+      ]
+    }
+  ]
+}

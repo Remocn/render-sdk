@@ -139,33 +139,57 @@
   },
   "hotPaths": [
     {
-      "path": "tsconfig.json",
-      "accessCount": 1,
-      "lastAccessed": 1782573486171,
+      "path": "package.json",
+      "accessCount": 4,
+      "lastAccessed": 1782575991233,
       "type": "file"
     },
     {
-      "path": "next.config.mjs",
-      "accessCount": 1,
-      "lastAccessed": 1782573486571,
+      "path": "apps/docs/package.json",
+      "accessCount": 4,
+      "lastAccessed": 1782576099893,
+      "type": "file"
+    },
+    {
+      "path": "tsconfig.json",
+      "accessCount": 2,
+      "lastAccessed": 1782575607467,
       "type": "file"
     },
     {
       "path": "source.config.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782573487069,
+      "accessCount": 2,
+      "lastAccessed": 1782575607909,
       "type": "file"
     },
     {
-      "path": "proxy.ts",
-      "accessCount": 1,
-      "lastAccessed": 1782573487499,
+      "path": "next.config.mjs",
+      "accessCount": 2,
+      "lastAccessed": 1782575608391,
       "type": "file"
     },
     {
       "path": "postcss.config.mjs",
+      "accessCount": 2,
+      "lastAccessed": 1782575609815,
+      "type": "file"
+    },
+    {
+      "path": "proxy.ts",
+      "accessCount": 2,
+      "lastAccessed": 1782575609974,
+      "type": "file"
+    },
+    {
+      "path": "apps/docs/tsconfig.json",
+      "accessCount": 2,
+      "lastAccessed": 1782575987285,
+      "type": "file"
+    },
+    {
+      "path": "progress.txt",
       "accessCount": 1,
-      "lastAccessed": 1782573488463,
+      "lastAccessed": 1782575771310,
       "type": "file"
     }
   ],
