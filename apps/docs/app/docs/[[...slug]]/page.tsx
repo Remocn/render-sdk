@@ -17,15 +17,12 @@ import type { DocData } from 'fumadocs-mdx/runtime/types';
 export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
   const params = await props.params;
   const page = source.getPage(params.slug);
+
   if (!page) {
-    // `/docs` has no root index page — send it to the first tab.
     if (!params.slug || params.slug.length === 0) redirect('/docs/general');
     notFound();
   }
 
-  // page.data is DocData & DocMethods & frontmatter at runtime; TypeScript loses
-  // the DocData part when importing through the @ts-nocheck generated .source/server.ts,
-  // so we restore it with a targeted cast.
   const data = page.data as typeof page.data & DocData & { full?: boolean };
   const MDX = data.body;
   const markdownUrl = getPageMarkdownUrl(page).url;
@@ -44,7 +41,6 @@ export default async function Page(props: PageProps<'/docs/[[...slug]]'>) {
       <DocsBody>
         <MDX
           components={getMDXComponents({
-            // this allows you to link to other pages with relative file paths
             a: createRelativeLink(source, page),
           })}
         />

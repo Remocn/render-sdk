@@ -1,0 +1,166 @@
+---
+title: Next.js
+description: Start renders, poll progress, and download output with Next.js App Router route handlers and a browser hook.
+---
+
+Next.js App Router route handlers run on the server, so they can import the SDK directly. This guide uses three route handlers plus a client hook.
+
+> Keep `lib/sdk.ts` out of any `"use client"` module. The SDK pulls in Node-only Remotion packages and must never be bundled for the browser.
+
+---
+
+## Shared SDK instance
+
+```ts
+// lib/sdk.ts
+import { RenderSdk } from "@remocn/render-sdk";
+import { RenderServer } from "@remocn/render-sdk/server";
+
+export const sdk = new RenderSdk({
+  adapter: RenderServer({
+    serveUrl: process.env.REMOTION_SERVE_URL!,
+    workDir: process.env.RENDER_WORK_DIR ?? "./out",
+    publicUrl: process.env.RENDER_PUBLIC_URL,
+    concurrency: 2,
+  }),
+});
+```
+
+---
+
+## Start route
+
+```ts
+// app/api/render/route.ts
+import { NextResponse } from "next/server";
+import { sdk } from "@/lib/sdk";
+
+export async function POST(req: Request) {
+  const { compositionId, inputProps } = await req.json();
+
+  const handle = await sdk.start({ compositionId, inputProps });
+
+  return NextResponse.json({ handle });
+}
+```
+
+---
+
+## Poll route
+
+```ts
+// app/api/render/[handle]/route.ts
+import { NextResponse } from "next/server";
+import type { RenderHandle } from "@remocn/render-sdk";
+import { sdk } from "@/lib/sdk";
+
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ handle: string }> }
+) {
+  const { handle } = await params;
+  const state = await sdk.getState(handle as RenderHandle);
+  return NextResponse.json(state);
+}
+```
+
+Returns `{ status, progress, error? }`. `progress` is a number from `0` to `1`.
+
+---
+
+## Download route
+
+```ts
+// app/api/render/[handle]/download/route.ts
+import type { RenderHandle } from "@remocn/render-sdk";
+import { sdk } from "@/lib/sdk";
+
+export async function GET(
+  _req: Request,
+  { params }: { params: Promise<{ handle: string }> }
+) {
+  const { handle } = await params;
+  const stream = await sdk.download(handle as RenderHandle);
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "video/mp4",
+      "Content-Disposition": 'attachment; filename="render.mp4"',
+    },
+  });
+}
+```
+
+Only hit this route once `status === "done"`. Calling it earlier throws `RenderError("not_found")` (server adapter) or fails to fetch the S3 URL (lambda adapter).
+
+---
+
+## Client hook
+
+```tsx
+"use client";
+
+import { useState } from "react";
+
+type Result = { status: string; progress: number; error?: string };
+
+export function useRender() {
+  const [state, setState] = useState<Result>({ status: "idle", progress: 0 });
+
+  async function render(compositionId: string, inputProps: unknown) {
+    const { handle } = await fetch("/api/render", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ compositionId, inputProps }),
+    }).then((r) => r.json());
+
+    while (true) {
+      const next: Result = await fetch(`/api/render/${handle}`).then((r) =>
+        r.json()
+      );
+      setState(next);
+
+      if (next.status === "done") {
+        window.location.href = `/api/render/${handle}/download`;
+        break;
+      }
+      if (next.status === "error") {
+        throw new Error(next.error ?? "Render failed");
+      }
+
+      await new Promise((r) => setTimeout(r, 1000));
+    }
+  }
+
+  return { state, render };
+}
+```
+
+```tsx
+"use client";
+
+import { useRender } from "./use-render";
+
+export function RenderButton() {
+  const { state, render } = useRender();
+
+  return (
+    <button
+      onClick={() => render("MyComp", { title: "Hello" })}
+      disabled={state.status === "rendering" || state.status === "queued"}
+    >
+      {state.status === "rendering"
+        ? `Rendering ${Math.round(state.progress * 100)}%`
+        : "Render"}
+    </button>
+  );
+}
+```
+
+---
+
+## Notes
+
+- Prefer redirecting to the file (`window.location.href`) over downloading a blob — it streams without buffering the whole video in memory.
+- With the Lambda adapter, return `await sdk.getUrl(handle)` from the poll route once `done` and redirect the browser straight to the S3 URL instead of proxying bytes through your server.
+- Route handlers are not for long-lived connections. Poll from the client (as above) rather than holding the request open.

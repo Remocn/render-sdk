@@ -11,7 +11,7 @@ The following features are **not implemented** by this SDK and are not planned:
 - **Cancelling renders** — no cancel API is provided. Cancel the underlying Remotion render through `@remotion/renderer` or Lambda directly.
 - **Deleting renders** — no delete API is provided. Call `store.delete(handle)` and remove the output file yourself.
 - **Uploading assets** — no asset upload API is provided. Pass a publicly reachable URL in `inputProps` or `serveUrl`.
-- **HTTP server** — the SDK does not expose an HTTP server. Wire it into your own framework using the [transport recipes](/docs/client).
+- **HTTP server** — the SDK does not expose an HTTP server. Wire it into your own framework using the [framework guides](/docs/client).
 
 ---
 
@@ -29,7 +29,7 @@ The following features are **not implemented** by this SDK and are not planned:
 
 - **No state persistence.** The lambda adapter does not use a `StateStore`. If the `RenderSdk` instance is lost (e.g. serverless function cold start), you can still reconstruct the handle with `encodeLambdaHandle` and poll `getState` as long as you know `renderId`, `bucket`, and `ext`.
 - **`getUrl()` throws before the render is done.** The S3 `outputFile` URL is `null` until `status === "done"`. Calling `getUrl()` before then throws `RenderError("not_found")`.
-- **AWS permissions must be provisioned externally.** The SDK does not create IAM roles, S3 buckets, or Lambda functions. See [Provisioning](/docs/client/provisioning).
+- **AWS permissions must be provisioned externally.** The SDK does not create IAM roles, S3 buckets, or Lambda functions. See the [Lambda adapter](/docs/adapters/lambda) and the [Remotion Lambda IAM docs](https://www.remotion.dev/docs/lambda/permissions).
 - **Region must match.** The `region` in `LambdaConfig` must match where the function and S3 bucket were deployed.
 
 ---

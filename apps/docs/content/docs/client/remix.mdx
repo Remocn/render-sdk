@@ -1,0 +1,138 @@
+---
+title: Remix
+description: Expose renders through Remix resource routes (action/loader) and drive them from a route component.
+---
+
+Remix resource routes — route modules with no default export — are the natural home for the SDK. `action`/`loader` run on the server only, so they can import it directly.
+
+> Put the SDK in a `*.server.ts` file. Remix treats the `.server` suffix as server-only and keeps it out of the browser bundle.
+
+---
+
+## Shared SDK instance
+
+```ts
+// app/sdk.server.ts
+import { RenderSdk } from "@remocn/render-sdk";
+import { RenderServer } from "@remocn/render-sdk/server";
+
+export const sdk = new RenderSdk({
+  adapter: RenderServer({
+    serveUrl: process.env.REMOTION_SERVE_URL!,
+    workDir: process.env.RENDER_WORK_DIR ?? "./out",
+    publicUrl: process.env.RENDER_PUBLIC_URL,
+    concurrency: 2,
+  }),
+});
+```
+
+---
+
+## Routes
+
+Flat-route filenames map directly to the three endpoint URLs — start, poll, and download.
+
+### Start
+
+```ts
+// app/routes/api.render.ts
+import type { ActionFunctionArgs } from "@remix-run/node";
+import { sdk } from "~/sdk.server";
+
+export async function action({ request }: ActionFunctionArgs) {
+  const { compositionId, inputProps } = await request.json();
+  const handle = await sdk.start({ compositionId, inputProps });
+  return Response.json({ handle });
+}
+```
+
+### Poll
+
+```ts
+// app/routes/api.render.$handle.ts
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { RenderHandle } from "@remocn/render-sdk";
+import { sdk } from "~/sdk.server";
+
+export async function loader({ params }: LoaderFunctionArgs) {
+  const state = await sdk.getState(params.handle as RenderHandle);
+  return Response.json(state);
+}
+```
+
+### Download
+
+```ts
+// app/routes/api.render.$handle.download.ts
+import type { LoaderFunctionArgs } from "@remix-run/node";
+import type { RenderHandle } from "@remocn/render-sdk";
+import { sdk } from "~/sdk.server";
+
+export async function loader({ params }: LoaderFunctionArgs) {
+  const stream = await sdk.download(params.handle as RenderHandle);
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "video/mp4",
+      "Content-Disposition": 'attachment; filename="render.mp4"',
+    },
+  });
+}
+```
+
+Only request the download route once `status === "done"`.
+
+---
+
+## Driving it from a component
+
+```tsx
+// app/routes/_index.tsx
+import { useState } from "react";
+
+type Result = { status: string; progress: number; error?: string };
+
+export default function Index() {
+  const [state, setState] = useState<Result>({ status: "idle", progress: 0 });
+
+  async function render() {
+    const { handle } = await fetch("/api/render", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ compositionId: "MyComp", inputProps: {} }),
+    }).then((r) => r.json());
+
+    while (true) {
+      const next: Result = await fetch(`/api/render/${handle}`).then((r) =>
+        r.json()
+      );
+      setState(next);
+
+      if (next.status === "done") {
+        window.location.href = `/api/render/${handle}/download`;
+        break;
+      }
+      if (next.status === "error") throw new Error(next.error ?? "Render failed");
+
+      await new Promise((r) => setTimeout(r, 1000));
+    }
+  }
+
+  const busy = state.status === "rendering" || state.status === "queued";
+
+  return (
+    <button onClick={render} disabled={busy}>
+      {state.status === "rendering"
+        ? `Rendering ${Math.round(state.progress * 100)}%`
+        : "Render"}
+    </button>
+  );
+}
+```
+
+---
+
+## Notes
+
+- Resource routes have no default export and return raw `Response` objects.
+- The `.server.ts` suffix on `sdk.server.ts` keeps the Node-only SDK out of the client bundle. Importing it from a component would break the browser build.
+- With the Lambda adapter, return `await sdk.getUrl(handle)` from the poll loader once `done` and redirect to the S3 URL instead of streaming through your server.

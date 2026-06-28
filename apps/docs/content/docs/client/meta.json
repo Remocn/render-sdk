@@ -1,1 +1,1 @@
-{ "root": true, "title": "Client", "pages": ["index", "provisioning"] }
+{ "root": true, "title": "Client", "pages": ["nextjs", "react", "react-router", "remix"] }
