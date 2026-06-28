@@ -1,0 +1,144 @@
+---
+title: React
+description: Drive renders from a Vite/CRA single-page app backed by a standalone Node API server.
+---
+
+A plain React SPA (Vite, CRA) has **no server**, and the SDK cannot run in the browser. Pair your app with a small standalone Node API — the example below uses [Hono](https://hono.dev), but Express works the same way.
+
+> Never `import { RenderSdk }` from a file that ends up in your client bundle. The SDK loads Node-only Remotion packages and will break the browser build.
+
+---
+
+## API server
+
+```ts
+// server/index.ts — run with `tsx server/index.ts` (Node, not the browser)
+import { serve } from "@hono/node-server";
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import { RenderSdk, type RenderHandle } from "@remocn/render-sdk";
+import { RenderServer } from "@remocn/render-sdk/server";
+
+const sdk = new RenderSdk({
+  adapter: RenderServer({
+    serveUrl: process.env.REMOTION_SERVE_URL!,
+    workDir: process.env.RENDER_WORK_DIR ?? "./out",
+    publicUrl: process.env.RENDER_PUBLIC_URL,
+    concurrency: 2,
+  }),
+});
+
+const app = new Hono();
+app.use("/api/*", cors()); // allow your SPA origin
+
+// Start
+app.post("/api/render", async (c) => {
+  const { compositionId, inputProps } = await c.req.json();
+  const handle = await sdk.start({ compositionId, inputProps });
+  return c.json({ handle });
+});
+
+// Poll
+app.get("/api/render/:handle", async (c) => {
+  const state = await sdk.getState(c.req.param("handle") as RenderHandle);
+  return c.json(state);
+});
+
+// Download
+app.get("/api/render/:handle/download", async (c) => {
+  const stream = await sdk.download(c.req.param("handle") as RenderHandle);
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "video/mp4",
+      "Content-Disposition": 'attachment; filename="render.mp4"',
+    },
+  });
+});
+
+serve({ fetch: app.fetch, port: 8787 });
+```
+
+Point your SPA at this server with an env var (`VITE_API_URL=http://localhost:8787`) or a Vite dev proxy:
+
+```ts
+// vite.config.ts
+export default defineConfig({
+  server: {
+    proxy: { "/api": "http://localhost:8787" },
+  },
+});
+```
+
+---
+
+## Client hook
+
+```tsx
+// src/use-render.ts
+import { useState } from "react";
+
+const API = import.meta.env.VITE_API_URL ?? "";
+
+type Result = { status: string; progress: number; error?: string };
+
+export function useRender() {
+  const [state, setState] = useState<Result>({ status: "idle", progress: 0 });
+
+  async function render(compositionId: string, inputProps: unknown) {
+    const { handle } = await fetch(`${API}/api/render`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ compositionId, inputProps }),
+    }).then((r) => r.json());
+
+    while (true) {
+      const next: Result = await fetch(`${API}/api/render/${handle}`).then((r) =>
+        r.json()
+      );
+      setState(next);
+
+      if (next.status === "done") {
+        window.location.href = `${API}/api/render/${handle}/download`;
+        break;
+      }
+      if (next.status === "error") {
+        throw new Error(next.error ?? "Render failed");
+      }
+
+      await new Promise((r) => setTimeout(r, 1000));
+    }
+  }
+
+  return { state, render };
+}
+```
+
+---
+
+## Component
+
+```tsx
+// src/RenderButton.tsx
+import { useRender } from "./use-render";
+
+export function RenderButton() {
+  const { state, render } = useRender();
+  const busy = state.status === "rendering" || state.status === "queued";
+
+  return (
+    <button onClick={() => render("MyComp", { title: "Hello" })} disabled={busy}>
+      {state.status === "rendering"
+        ? `Rendering ${Math.round(state.progress * 100)}%`
+        : "Render"}
+    </button>
+  );
+}
+```
+
+---
+
+## Notes
+
+- The API server and the SPA are two separate processes. In production, deploy the API anywhere Node runs and serve the static SPA from a CDN.
+- `cors()` is required only when the SPA and API live on different origins. Behind a single reverse proxy you can drop it.
+- With the Lambda adapter, return `await sdk.getUrl(handle)` once `done` and send the browser to the S3 URL directly.

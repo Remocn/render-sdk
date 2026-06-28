@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/apps/docs; sleep 3; echo \\\"=== redirect check (/docs/client) ===\\\"; curl -s -o /dev/null -w \\\"status=%{http_code} -> %{redirect_u...",
+  "error": "Exit code 7\n=== redirect check (/docs/client) ===\nstatus=000 -> \n=== pages ===\n000  /docs/client/nextjs\n000  /docs/client/react\n000  /docs/client/react-router\n000  /docs/client/remix\n=== follow redirect ===\nfinal=000 url=http://localhost:3009/docs/client",
+  "timestamp": "2026-06-28T08:31:49.663Z",
+  "retry_count": 1
+}

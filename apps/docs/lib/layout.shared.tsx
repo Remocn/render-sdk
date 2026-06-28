@@ -5,6 +5,7 @@ import { appName, gitConfig } from './shared';
 export function baseOptions(): BaseLayoutProps {
   return {
     nav: {
+
       title: (
         <>
           <Logo className="size-6 rounded-md" />

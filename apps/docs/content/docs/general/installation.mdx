@@ -5,8 +5,8 @@ description: Install @remocn/render-sdk and the optional peer dependencies for e
 
 Install the core package:
 
-```bash
-bun add @remocn/render-sdk
+```package-install
+npm install @remocn/render-sdk
 ```
 
 ## Optional peer dependencies
@@ -15,14 +15,14 @@ Each adapter requires its own peer dependency. The peers are optional at install
 
 ### Server adapter
 
-```bash
-bun add @remotion/renderer
+```package-install
+npm install @remotion/renderer
 ```
 
 ### Lambda adapter
 
-```bash
-bun add @remotion/lambda
+```package-install
+npm install @remotion/lambda
 ```
 
 Importing a subpath (`@remocn/render-sdk/server` or `@remocn/render-sdk/lambda`) without the corresponding peer installed will throw at runtime.

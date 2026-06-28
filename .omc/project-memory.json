@@ -331,6 +331,12 @@
       "type": "file"
     },
     {
+      "path": "apps/docs/components/mdx.tsx",
+      "accessCount": 3,
+      "lastAccessed": 1782635779853,
+      "type": "file"
+    },
+    {
       "path": "tsconfig.json",
       "accessCount": 2,
       "lastAccessed": 1782575607467,
@@ -430,12 +436,6 @@
       "path": "packages/render-sdk/test/wait.test.ts",
       "accessCount": 1,
       "lastAccessed": 1782579844431,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/components/mdx.tsx",
-      "accessCount": 1,
-      "lastAccessed": 1782583675980,
       "type": "file"
     }
   ],
