@@ -17,8 +17,11 @@
  * (`@remocn/render-sdk`) stays remotion-free; only adapters pull it in.
  */
 
-import { getRenderProgress, renderMediaOnLambda } from "@remotion/lambda/client";
 import type { AwsRegion } from "@remotion/lambda/client";
+import {
+  getRenderProgress,
+  renderMediaOnLambda,
+} from "@remotion/lambda/client";
 
 import type { RenderAdapter } from "../adapter";
 import { extForCodec } from "../codecs";
@@ -50,7 +53,9 @@ export type LambdaOptions = {
   maxRetries?: number;
 };
 
-export function RenderLambda(config: LambdaConfig): RenderAdapter<LambdaOptions> {
+export function RenderLambda(
+  config: LambdaConfig,
+): RenderAdapter<LambdaOptions> {
   /**
    * Decode a handle and assert it belongs to the lambda adapter, then fetch
    * the current render progress from AWS. Used by `getState`, `getUrl`, and
@@ -75,7 +80,9 @@ export function RenderLambda(config: LambdaConfig): RenderAdapter<LambdaOptions>
     return { decoded, progress };
   }
 
-  function mapProgress(p: Awaited<ReturnType<typeof getRenderProgress>>): RenderState {
+  function mapProgress(
+    p: Awaited<ReturnType<typeof getRenderProgress>>,
+  ): RenderState {
     if (p.done) {
       return { status: "done", progress: 1 };
     }
@@ -142,10 +149,7 @@ export function RenderLambda(config: LambdaConfig): RenderAdapter<LambdaOptions>
   async function getUrl(handle: RenderHandle): Promise<string> {
     const { progress } = await fetchProgress(handle);
     if (!progress.outputFile) {
-      throw new RenderError(
-        "not_found",
-        `Render output not ready: ${handle}`,
-      );
+      throw new RenderError("not_found", `Render output not ready: ${handle}`);
     }
     return progress.outputFile;
   }

@@ -1,6 +1,11 @@
 import { afterEach, beforeEach, describe, test } from "bun:test";
 
-import { expectRenderErrorCode, lambda, mockLambda, resetLambda } from "./_lambda-harness";
+import {
+  expectRenderErrorCode,
+  lambda,
+  mockLambda,
+  resetLambda,
+} from "./_lambda-harness";
 
 mockLambda();
 const { RenderLambda } = await import("../src/lambda");

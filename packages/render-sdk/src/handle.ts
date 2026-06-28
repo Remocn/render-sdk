@@ -17,8 +17,8 @@ import type { RenderHandle } from "./types";
  */
 
 export type DecodedHandle =
-   | { adapter: "server"; jobId: string }
-   | { adapter: "lambda"; renderId: string; bucket: string; ext: string };
+  | { adapter: "server"; jobId: string }
+  | { adapter: "lambda"; renderId: string; bucket: string; ext: string };
 
 const DELIMITER = "~";
 

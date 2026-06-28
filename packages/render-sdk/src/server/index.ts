@@ -14,9 +14,8 @@ import { createReadStream } from "node:fs";
 import { mkdir, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { Readable } from "node:stream";
-
-import { renderMedia, selectComposition } from "@remotion/renderer";
 import type { ChromiumOptions } from "@remotion/renderer";
+import { renderMedia, selectComposition } from "@remotion/renderer";
 import pLimit from "p-limit";
 
 import type { RenderAdapter } from "../adapter";
@@ -68,7 +67,9 @@ function clamp01(n: number): number {
  * everything else to `render_failed`.
  */
 
-export function RenderServer(config: ServerConfig): RenderAdapter<ServerOptions> {
+export function RenderServer(
+  config: ServerConfig,
+): RenderAdapter<ServerOptions> {
   const store = config.store ?? InMemoryStore();
   const limit = pLimit(config.concurrency ?? DEFAULT_CONCURRENCY);
 

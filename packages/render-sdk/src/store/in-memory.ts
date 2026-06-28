@@ -27,7 +27,10 @@ export function InMemoryStore(): StateStore {
     ): Promise<void> {
       const existing = records.get(handle);
       if (existing === undefined) {
-        throw new RenderError("not_found", `No render record for handle: ${handle}`);
+        throw new RenderError(
+          "not_found",
+          `No render record for handle: ${handle}`,
+        );
       }
       records.set(handle, { ...existing, ...patch });
     },

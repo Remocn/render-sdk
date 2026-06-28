@@ -1,3 +1,18 @@
+// src/codecs.ts
+var CODEC_EXT = {
+  h264: "mp4",
+  h265: "mp4",
+  vp8: "webm",
+  vp9: "webm",
+  gif: "gif",
+  prores: "mov",
+  mp3: "mp3",
+  aac: "aac",
+  wav: "wav"
+};
+function extForCodec(codec) {
+  return CODEC_EXT[codec ?? "h264"];
+}
 // src/errors.ts
 class RenderError extends Error {
   code;
@@ -58,43 +73,6 @@ function decodeHandle(handle) {
   }
   return rejectUnknownAdapterTag(handle);
 }
-// src/codecs.ts
-var CODEC_EXT = {
-  h264: "mp4",
-  h265: "mp4",
-  vp8: "webm",
-  vp9: "webm",
-  gif: "gif",
-  prores: "mov",
-  mp3: "mp3",
-  aac: "aac",
-  wav: "wav"
-};
-function extForCodec(codec) {
-  return CODEC_EXT[codec ?? "h264"];
-}
-// src/store/in-memory.ts
-function InMemoryStore() {
-  const records = new Map;
-  return {
-    async create(handle, initial) {
-      records.set(handle, initial);
-    },
-    async get(handle) {
-      return records.get(handle) ?? null;
-    },
-    async update(handle, patch) {
-      const existing = records.get(handle);
-      if (existing === undefined) {
-        throw new RenderError("not_found", `No render record for handle: ${handle}`);
-      }
-      records.set(handle, { ...existing, ...patch });
-    },
-    async delete(handle) {
-      records.delete(handle);
-    }
-  };
-}
 // src/wait.ts
 var DEFAULT_INTERVAL_MS = 1000;
 function abortableDelay(ms, signal) {
@@ -115,7 +93,12 @@ function abortableDelay(ms, signal) {
   });
 }
 async function waitForCompletion(adapter, handle, opts = {}) {
-  const { onProgress, intervalMs = DEFAULT_INTERVAL_MS, signal, timeoutMs } = opts;
+  const {
+    onProgress,
+    intervalMs = DEFAULT_INTERVAL_MS,
+    signal,
+    timeoutMs
+  } = opts;
   const deadline = timeoutMs === undefined ? undefined : Date.now() + timeoutMs;
   while (true) {
     if (signal?.aborted) {
@@ -160,6 +143,28 @@ class RenderSdk {
   waitForCompletion(handle, opts) {
     return waitForCompletion(this.adapter, handle, opts);
   }
+}
+// src/store/in-memory.ts
+function InMemoryStore() {
+  const records = new Map;
+  return {
+    async create(handle, initial) {
+      records.set(handle, initial);
+    },
+    async get(handle) {
+      return records.get(handle) ?? null;
+    },
+    async update(handle, patch) {
+      const existing = records.get(handle);
+      if (existing === undefined) {
+        throw new RenderError("not_found", `No render record for handle: ${handle}`);
+      }
+      records.set(handle, { ...existing, ...patch });
+    },
+    async delete(handle) {
+      records.delete(handle);
+    }
+  };
 }
 
 // src/index.ts

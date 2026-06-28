@@ -1,5 +1,8 @@
 // src/lambda/index.ts
-import { getRenderProgress, renderMediaOnLambda } from "@remotion/lambda/client";
+import {
+  getRenderProgress,
+  renderMediaOnLambda
+} from "@remotion/lambda/client";
 
 // src/codecs.ts
 var CODEC_EXT = {

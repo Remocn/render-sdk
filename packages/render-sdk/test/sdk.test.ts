@@ -61,9 +61,7 @@ describe("RenderSdk delegation", () => {
     const sdk = new RenderSdk({ adapter });
 
     expect(await sdk.getState(handle)).toEqual({ status: "done", progress: 1 });
-    expect(await sdk.getUrl(handle)).toBe(
-      "https://cdn.example.com/fake-1.mp4",
-    );
+    expect(await sdk.getUrl(handle)).toBe("https://cdn.example.com/fake-1.mp4");
     expect(await sdk.download(handle)).toBeInstanceOf(ReadableStream);
 
     expect(calls.map((c) => c.method)).toEqual([

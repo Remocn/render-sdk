@@ -31,17 +31,26 @@ export function isBlank(field: string): boolean {
 
 export function rejectEmptyHandle(handle: string): void {
   if (typeof handle !== "string" || handle.length === 0) {
-    throw new RenderError("not_found", `Malformed render handle: ${String(handle)}`);
+    throw new RenderError(
+      "not_found",
+      `Malformed render handle: ${String(handle)}`,
+    );
   }
 }
 
-export function rejectMalformedServerHandle(parts: string[], handle: string): void {
+export function rejectMalformedServerHandle(
+  parts: string[],
+  handle: string,
+): void {
   if (parts.length !== 2 || isBlank(parts[1]!)) {
     throw new RenderError("not_found", `Malformed server handle: ${handle}`);
   }
 }
 
-export function rejectMalformedLambdaHandle(parts: string[], handle: string): void {
+export function rejectMalformedLambdaHandle(
+  parts: string[],
+  handle: string,
+): void {
   if (parts.length !== 4 || parts.slice(1).some(isBlank)) {
     throw new RenderError("not_found", `Malformed lambda handle: ${handle}`);
   }

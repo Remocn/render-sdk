@@ -1,7 +1,12 @@
 import { afterEach, beforeEach, describe, expect, test } from "bun:test";
 
 import { encodeLambdaHandle } from "../src/handle";
-import { lambda, makeProgress, mockLambda, resetLambda } from "./_lambda-harness";
+import {
+  lambda,
+  makeProgress,
+  mockLambda,
+  resetLambda,
+} from "./_lambda-harness";
 
 mockLambda();
 const { RenderLambda } = await import("../src/lambda");
@@ -71,8 +76,7 @@ describe("RenderLambda.getState", () => {
   });
 
   test("overallProgress > 0 => {status:rendering, progress:overallProgress}", async () => {
-    lambda.progressImpl = async () =>
-      makeProgress({ overallProgress: 0.6 });
+    lambda.progressImpl = async () => makeProgress({ overallProgress: 0.6 });
 
     const adapter = RenderLambda(CONFIG);
     const state = await adapter.getState(HANDLE);
