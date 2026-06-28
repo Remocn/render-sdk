@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1782572267936,
+  "lastScanned": 1782669715670,
   "projectRoot": "/Users/dev_wandry/projects/opensource/remocn-render-sdk",
   "techStack": {
     "languages": [
@@ -11,431 +11,78 @@
         "markers": [
           "package.json"
         ]
-      },
-      {
-        "name": "TypeScript",
-        "version": null,
-        "confidence": "high",
-        "markers": [
-          "tsconfig.json"
-        ]
       }
     ],
-    "frameworks": [
-      {
-        "name": "next",
-        "version": "16.2.9",
-        "category": "fullstack"
-      },
-      {
-        "name": "react",
-        "version": "19.2.7",
-        "category": "frontend"
-      },
-      {
-        "name": "react-dom",
-        "version": "19.2.7",
-        "category": "frontend"
-      }
-    ],
+    "frameworks": [],
     "packageManager": "npm",
     "runtime": null
   },
   "build": {
-    "buildCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk\necho \"=== LINT ===\" && bun run lint >/tmp/r_lint.log 2>&1; echo \"LINT_RC=$?\"; tail -3 /tmp/r_lint.log | grep -aE 'Exited|error' \necho \"=== TYPECHECK ===\" && bun run typecheck >/tmp/r_tc.log 2>&1; echo \"TYPECHECK_RC=$?\"\necho \"=== TEST ===\" && bun run test >/tmp/r_test.log 2>&1; echo \"TEST_RC=$?\"; grep -aE 'Ran|fail' /tmp/r_test.log | tail -2\necho \"=== BUILD ===\" && bun run build >/tmp/r_build.log 2>&1; echo \"BUILD_RC=$?\"; tail -2 /tmp/r_build.log | grep -aE 'Exited|error' || tail -1 /tmp/r_build.log\necho \"=== YAML ===\" && bunx --bun js-yaml .github/workflows/ci.yml >/dev/null 2>&1 && echo ci.yml OK; bunx --bun js-yaml .github/workflows/release.yml >/dev/null 2>&1 && echo release.yml OK\necho \"=== JSON ===\" && python3 -c \"import json;[json.load(open(f)) for f in ['package.json','packages/render-sdk/package.json','apps/docs/package.json','.changeset/config.json']];print('all json valid')\"",
-    "testCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk && bun run types 2>&1 | tail -5; echo \"---BUILD---\"; bun run build 2>&1 | tail -5; echo \"---TEST---\"; bun test 2>&1 | tail -15",
-    "lintCommand": null,
+    "buildCommand": "npm run build",
+    "testCommand": "npm test",
+    "lintCommand": "npm run lint",
     "devCommand": "npm run dev",
     "scripts": {
-      "build": "next build",
-      "dev": "next dev",
-      "start": "next start",
-      "types:check": "fumadocs-mdx && next typegen && tsc --noEmit",
-      "postinstall": "fumadocs-mdx"
+      "dev": "bun --filter=docs run dev",
+      "build": "bun --filter='*' run build",
+      "docs:build": "bun --filter=docs run build",
+      "lint": "bun --filter='*' run lint",
+      "format": "bun --filter='*' run format",
+      "typecheck": "bun --filter='*' run typecheck",
+      "test": "bun --filter='@remocn/*' run test",
+      "changeset": "changeset",
+      "changeset:version": "changeset version",
+      "release": "bun --filter='@remocn/*' run build && changeset publish"
     }
   },
   "conventions": {
-    "namingStyle": "camelCase",
-    "importStyle": "ES modules",
+    "namingStyle": null,
+    "importStyle": null,
     "testPattern": null,
     "fileOrganization": null
   },
   "structure": {
-    "isMonorepo": false,
-    "workspaces": [],
-    "mainDirectories": [
-      "app",
-      "components",
-      "lib"
+    "isMonorepo": true,
+    "workspaces": [
+      "apps/*",
+      "packages/*"
     ],
+    "mainDirectories": [],
     "gitBranches": null
   },
   "customNotes": [],
   "directoryMap": {
-    "app": {
-      "path": "app",
-      "purpose": "Application code",
-      "fileCount": 2,
-      "lastAccessed": 1782572267870,
-      "keyFiles": [
-        "global.css",
-        "layout.tsx"
-      ]
-    },
-    "components": {
-      "path": "components",
-      "purpose": "UI components",
-      "fileCount": 1,
-      "lastAccessed": 1782572267870,
-      "keyFiles": [
-        "mdx.tsx"
-      ]
-    },
-    "content": {
-      "path": "content",
+    "apps": {
+      "path": "apps",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1782572267905,
+      "lastAccessed": 1782669715627,
       "keyFiles": []
     },
-    "lib": {
-      "path": "lib",
-      "purpose": "Library code",
-      "fileCount": 4,
-      "lastAccessed": 1782572267906,
-      "keyFiles": [
-        "cn.ts",
-        "layout.shared.tsx",
-        "shared.ts",
-        "source.ts"
-      ]
-    },
-    "app/api": {
-      "path": "app/api",
-      "purpose": "API routes",
-      "fileCount": 0,
-      "lastAccessed": 1782572267907,
-      "keyFiles": []
-    },
-    "app/docs": {
-      "path": "app/docs",
-      "purpose": "Documentation",
+    "packages": {
+      "path": "packages",
+      "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1782572267907,
-      "keyFiles": [
-        "layout.tsx"
-      ]
+      "lastAccessed": 1782669715628,
+      "keyFiles": []
     },
-    "content/docs": {
-      "path": "content/docs",
+    "apps/docs": {
+      "path": "apps/docs",
       "purpose": "Documentation",
-      "fileCount": 2,
-      "lastAccessed": 1782572267909,
+      "fileCount": 12,
+      "lastAccessed": 1782669715643,
       "keyFiles": [
-        "index.mdx",
-        "test.mdx"
+        "AGENTS.md",
+        "README.md",
+        "biome.jsonc"
       ]
     }
   },
   "hotPaths": [
     {
-      "path": "packages/render-sdk/src/index.ts",
-      "accessCount": 12,
-      "lastAccessed": 1782584838448,
-      "type": "file"
-    },
-    {
-      "path": "progress.txt",
-      "accessCount": 9,
-      "lastAccessed": 1782582161941,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/package.json",
-      "accessCount": 9,
-      "lastAccessed": 1782640797099,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/server/index.ts",
-      "accessCount": 8,
-      "lastAccessed": 1782584844182,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/store/types.ts",
-      "accessCount": 8,
-      "lastAccessed": 1782584845531,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/handle.ts",
-      "accessCount": 8,
-      "lastAccessed": 1782584847383,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/content/docs/index.mdx",
-      "accessCount": 8,
-      "lastAccessed": 1782586134353,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/types.ts",
-      "accessCount": 7,
-      "lastAccessed": 1782584839962,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/errors.ts",
-      "accessCount": 7,
-      "lastAccessed": 1782584848365,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/README.md",
-      "accessCount": 7,
-      "lastAccessed": 1782586129318,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/adapter.ts",
-      "accessCount": 6,
-      "lastAccessed": 1782584846496,
-      "type": "file"
-    },
-    {
-      "path": "package.json",
-      "accessCount": 6,
-      "lastAccessed": 1782638198802,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/package.json",
-      "accessCount": 6,
-      "lastAccessed": 1782638203376,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/lambda/index.ts",
-      "accessCount": 5,
-      "lastAccessed": 1782584844579,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/codecs.ts",
-      "accessCount": 5,
-      "lastAccessed": 1782584847846,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/app/(home)/page.tsx",
-      "accessCount": 5,
-      "lastAccessed": 1782585000011,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/content/docs/limitations.mdx",
-      "accessCount": 5,
-      "lastAccessed": 1782586137013,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/handle.test.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782579802350,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/server.error.test.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782580998639,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/_server-harness.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782581182756,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/server.url.test.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782581191247,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/sdk.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782584838927,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/store/in-memory.ts",
-      "accessCount": 4,
-      "lastAccessed": 1782584846054,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/content/docs/adapters.mdx",
-      "accessCount": 4,
-      "lastAccessed": 1782586134710,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/content/docs/public-surface.mdx",
-      "accessCount": 4,
-      "lastAccessed": 1782586135096,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/content/docs/transport-recipes.mdx",
-      "accessCount": 4,
-      "lastAccessed": 1782586135869,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/tsconfig.json",
-      "accessCount": 3,
-      "lastAccessed": 1782576773448,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/bunfig.toml",
-      "accessCount": 3,
-      "lastAccessed": 1782576774857,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/in-memory.test.ts",
-      "accessCount": 3,
-      "lastAccessed": 1782579802130,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/tsconfig.json",
-      "accessCount": 3,
-      "lastAccessed": 1782584198979,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/content/docs/provisioning.mdx",
-      "accessCount": 3,
-      "lastAccessed": 1782586136239,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/content/docs/state-store.mdx",
-      "accessCount": 3,
-      "lastAccessed": 1782586136619,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/components/mdx.tsx",
-      "accessCount": 3,
-      "lastAccessed": 1782635779853,
-      "type": "file"
-    },
-    {
-      "path": "tsconfig.json",
-      "accessCount": 2,
-      "lastAccessed": 1782575607467,
-      "type": "file"
-    },
-    {
-      "path": "source.config.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782575607909,
-      "type": "file"
-    },
-    {
-      "path": "next.config.mjs",
-      "accessCount": 2,
-      "lastAccessed": 1782575608391,
-      "type": "file"
-    },
-    {
-      "path": "postcss.config.mjs",
-      "accessCount": 2,
-      "lastAccessed": 1782575609815,
-      "type": "file"
-    },
-    {
-      "path": "proxy.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782575609974,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/codecs.test.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782578439813,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/errors.test.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782578439903,
-      "type": "file"
-    },
-    {
-      "path": "README.md",
-      "accessCount": 2,
-      "lastAccessed": 1782579753048,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/sdk.test.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782580410957,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/server.start.test.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782580995746,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/server.limiter.test.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782580996213,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/server.download.test.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782580997632,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/server.types.test.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782580998816,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/content/docs/test.mdx",
-      "accessCount": 2,
-      "lastAccessed": 1782583669571,
-      "type": "file"
-    },
-    {
-      "path": "apps/docs/source.config.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782583675135,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/src/wait.ts",
-      "accessCount": 2,
-      "lastAccessed": 1782584839368,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/test/wait.test.ts",
+      "path": "apps/docs/app/layout.tsx",
       "accessCount": 1,
-      "lastAccessed": 1782579844431,
+      "lastAccessed": 1782669869282,
       "type": "file"
     }
   ],
