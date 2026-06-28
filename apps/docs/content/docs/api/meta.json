@@ -1,1 +1,5 @@
-{ "root": true, "title": "API", "pages": ["index", "state-store", "limitations"] }
+{
+  "root": true,
+  "title": "API",
+  "pages": ["index", "state-store", "limitations"]
+}

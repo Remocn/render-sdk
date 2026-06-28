@@ -1,0 +1,7 @@
+{
+  "tool_name": "Read",
+  "tool_input_preview": "{\"file_path\":\"/private/tmp/claude-501/-Users-dev-wandry-projects-opensource-remocn-render-sdk/90eeeca7-e077-4b4c-bf6d-fc71639e977f/tasks/a494cd7bae88f19d5.output\",\"offset\":1,\"limit\":60}",
+  "error": "File content (148774 tokens) exceeds maximum allowed tokens (25000). Use offset and limit parameters to read specific portions of the file, or search for specific content instead of reading the whole file.",
+  "timestamp": "2026-06-28T09:24:43.564Z",
+  "retry_count": 2
+}

@@ -1,0 +1,21 @@
+# deps
+node_modules
+
+# next
+.next/
+out/
+next-env.d.ts
+
+# fumadocs generated
+.source/
+
+# omc session state
+.omc/
+
+# build info
+*.tsbuildinfo
+
+# misc
+.DS_Store
+.env*.local
+.vercel

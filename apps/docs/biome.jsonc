@@ -1,0 +1,16 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.4.16/schema.json",
+  "extends": ["ultracite/biome/core"],
+  "linter": {
+    "rules": {
+      // Next.js mandates async signatures for redirects()/generateMetadata()/
+      // generateStaticParams() even when no await is used.
+      "suspicious": { "useAwait": "off" },
+      // lib/cn.ts is the conventional single re-export of tailwind-merge.
+      "performance": { "noBarrelFile": "off" },
+      // Template/preset CSS (fumadocs + shiki overrides) intentionally orders
+      // selectors by intent, not specificity.
+      "style": { "noDescendingSpecificity": "off" }
+    }
+  }
+}

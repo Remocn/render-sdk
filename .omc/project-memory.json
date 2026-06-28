@@ -42,7 +42,7 @@
     "runtime": null
   },
   "build": {
-    "buildCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk && bun run types 2>&1 | tail -5; echo \"---BUILD---\"; bun run build 2>&1 | tail -5; echo \"---TEST---\"; bun test 2>&1 | tail -15",
+    "buildCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk\necho \"=== LINT ===\" && bun run lint >/tmp/r_lint.log 2>&1; echo \"LINT_RC=$?\"; tail -3 /tmp/r_lint.log | grep -aE 'Exited|error' \necho \"=== TYPECHECK ===\" && bun run typecheck >/tmp/r_tc.log 2>&1; echo \"TYPECHECK_RC=$?\"\necho \"=== TEST ===\" && bun run test >/tmp/r_test.log 2>&1; echo \"TEST_RC=$?\"; grep -aE 'Ran|fail' /tmp/r_test.log | tail -2\necho \"=== BUILD ===\" && bun run build >/tmp/r_build.log 2>&1; echo \"BUILD_RC=$?\"; tail -2 /tmp/r_build.log | grep -aE 'Exited|error' || tail -1 /tmp/r_build.log\necho \"=== YAML ===\" && bunx --bun js-yaml .github/workflows/ci.yml >/dev/null 2>&1 && echo ci.yml OK; bunx --bun js-yaml .github/workflows/release.yml >/dev/null 2>&1 && echo release.yml OK\necho \"=== JSON ===\" && python3 -c \"import json;[json.load(open(f)) for f in ['package.json','packages/render-sdk/package.json','apps/docs/package.json','.changeset/config.json']];print('all json valid')\"",
     "testCommand": "cd /Users/dev_wandry/projects/opensource/remocn-render-sdk/packages/render-sdk && bun run types 2>&1 | tail -5; echo \"---BUILD---\"; bun run build 2>&1 | tail -5; echo \"---TEST---\"; bun test 2>&1 | tail -15",
     "lintCommand": null,
     "devCommand": "npm run dev",
@@ -193,15 +193,27 @@
       "type": "file"
     },
     {
+      "path": "packages/render-sdk/package.json",
+      "accessCount": 7,
+      "lastAccessed": 1782638747635,
+      "type": "file"
+    },
+    {
       "path": "packages/render-sdk/src/adapter.ts",
       "accessCount": 6,
       "lastAccessed": 1782584846496,
       "type": "file"
     },
     {
+      "path": "package.json",
+      "accessCount": 6,
+      "lastAccessed": 1782638198802,
+      "type": "file"
+    },
+    {
       "path": "apps/docs/package.json",
-      "accessCount": 5,
-      "lastAccessed": 1782583957100,
+      "accessCount": 6,
+      "lastAccessed": 1782638203376,
       "type": "file"
     },
     {
@@ -229,21 +241,9 @@
       "type": "file"
     },
     {
-      "path": "package.json",
-      "accessCount": 4,
-      "lastAccessed": 1782575991233,
-      "type": "file"
-    },
-    {
       "path": "packages/render-sdk/test/handle.test.ts",
       "accessCount": 4,
       "lastAccessed": 1782579802350,
-      "type": "file"
-    },
-    {
-      "path": "packages/render-sdk/package.json",
-      "accessCount": 4,
-      "lastAccessed": 1782580402921,
       "type": "file"
     },
     {

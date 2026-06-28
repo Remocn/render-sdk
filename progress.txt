@@ -368,3 +368,36 @@ provisioning recipes as copy-paste (explicitly the consumer's job).
   not_found before done; InMemoryStore() is a factory.
 - Next: PR 09 (CI / GitHub Actions, depends only on 02) is the last remaining PRD — runs types/build/test
   for packages/render-sdk + the docs build.
+
+================================================================
+[CI/CD ralph run — 2026-06-28] Biome+ultracite lint/format, tsc, changesets+OIDC
+================================================================
+Engine decision: single Biome (2.4.16) across monorepo.
+- ultracite@7 changed engine: <=6 = Biome preset; 7.x = oxlint/oxfmt.
+  Used `ultracite init --linter biome` so docs stays on Biome (extends ultracite/biome/core).
+- docs: apps/docs/biome.jsonc (extends ultracite/biome/core) + rule overrides
+  (useAwait/noBarrelFile/noDescendingSpecificity off — Next/Tailwind conventions).
+  lint='ultracite check', format='ultracite fix'. Added apps/docs/.gitignore
+  (ultracite core enables vcs.useIgnoreFile -> needs .gitignore; also excludes .omc/).
+- render-sdk: packages/render-sdk/biome.json standalone (recommended rules, 2-space,
+  double quotes, semicolons). lint='biome ci .'. Removed vcs block (no per-pkg .gitignore).
+
+bun --filter GOTCHA (bun 1.3.2): `bun --filter <name> run <script>` (space form + run)
+fails "No packages matched". Reliable form: `bun --filter='<sel>' run <script>` (equals).
+Root scripts standardized to equals form. Single pkg selector: '@remocn/*'.
+
+Changesets: .changeset/config.json -> changelog-github {repo Remocn/render-sdk},
+access public, baseBranch main. docs is private -> auto-excluded (verified via temp
+changeset: only @remocn/render-sdk bumps).
+
+Workflows: ci.yml (PR + push main, bun 1.3.2 pinned, fetch-depth 0,
+install->lint->typecheck->test->build->soft changeset status).
+release.yml (push main, id-token:write, setup-node 22 + npm@latest for OIDC>=11.5.1,
+changesets/action@v1, NPM_CONFIG_PROVENANCE, no NPM_TOKEN).
+
+Verification (all green): bun run lint=0 (render-sdk 9 warnings non-blocking, docs clean),
+typecheck=0, test=0 (80 tests), build=0 both. YAML valid.
+
+Manual prereqs (RELEASE.md): 1) first manual npm publish to claim name,
+2) npmjs Trusted Publisher (Remocn/render-sdk, release.yml), 3) enable Actions-create-PRs,
+4) optional branch protection.

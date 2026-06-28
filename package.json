@@ -7,11 +7,20 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "bun --filter docs dev",
-    "build": "bun --filter '*' build",
-    "docs:build": "bun --filter docs build"
+    "dev": "bun --filter=docs run dev",
+    "build": "bun --filter='*' run build",
+    "docs:build": "bun --filter=docs run build",
+    "lint": "bun --filter='*' run lint",
+    "format": "bun --filter='*' run format",
+    "typecheck": "bun --filter='*' run typecheck",
+    "test": "bun --filter='@remocn/*' run test",
+    "changeset": "changeset",
+    "changeset:version": "changeset version",
+    "release": "bun --filter='@remocn/*' run build && changeset publish"
   },
   "devDependencies": {
+    "@changesets/changelog-github": "^0.7.0",
+    "@changesets/cli": "^2.31.0",
     "typescript": "^6.0.3"
   }
 }

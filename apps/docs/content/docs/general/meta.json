@@ -1,1 +1,5 @@
-{ "root": true, "title": "General", "pages": ["index", "installation", "get-started"] }
+{
+  "root": true,
+  "title": "General",
+  "pages": ["index", "installation", "get-started"]
+}

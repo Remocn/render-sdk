@@ -1,18 +1,18 @@
-import type { SVGProps } from 'react';
+import type { SVGProps } from "react";
 
 /** The Remocn Render SDK mark — a play triangle over vertical timeline bars. */
 export function Logo(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
-      width="100"
+      aria-hidden="true"
+      fill="none"
       height="100"
       viewBox="0 0 100 100"
-      fill="none"
+      width="100"
       xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
       {...props}
     >
-      <rect width="100" height="100" rx="14" fill="black" />
+      <rect fill="black" height="100" rx="14" width="100" />
       <path
         d="M83.9141 45.7661C86.9141 47.4982 86.9141 51.829 83.9141 53.561L31.4141 83.8716C28.4141 85.6036 24.6641 83.4382 24.6641 79.9741L24.6641 19.353C24.6641 15.8889 28.4141 13.7235 31.4141 15.4556L83.9141 45.7661Z"
         fill="white"
@@ -33,10 +33,22 @@ export function Logo(props: SVGProps<SVGSVGElement>) {
         stroke="black"
         strokeWidth="10"
       />
-      <path d="M31.1318 15.8618L43.1074 22.7646" stroke="white" strokeWidth="2" />
+      <path
+        d="M31.1318 15.8618L43.1074 22.7646"
+        stroke="white"
+        strokeWidth="2"
+      />
       <path d="M63.291 34.439L75.2617 41.3579" stroke="white" strokeWidth="2" />
-      <path d="M46.6641 74.4712L59.208 67.2573" stroke="white" strokeWidth="2" />
-      <path d="M76.0205 57.5371L82.9848 53.5226" stroke="white" strokeWidth="2" />
+      <path
+        d="M46.6641 74.4712L59.208 67.2573"
+        stroke="white"
+        strokeWidth="2"
+      />
+      <path
+        d="M76.0205 57.5371L82.9848 53.5226"
+        stroke="white"
+        strokeWidth="2"
+      />
     </svg>
   );
 }

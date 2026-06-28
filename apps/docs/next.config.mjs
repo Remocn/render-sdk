@@ -1,4 +1,4 @@
-import { createMDX } from 'fumadocs-mdx/next';
+import { createMDX } from "fumadocs-mdx/next";
 
 const withMDX = createMDX();
 
@@ -9,8 +9,8 @@ const config = {
     return [
       // Client tab has no index page — land on the first framework guide.
       {
-        source: '/docs/client',
-        destination: '/docs/client/nextjs',
+        source: "/docs/client",
+        destination: "/docs/client/nextjs",
         permanent: false,
       },
     ];
