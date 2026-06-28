@@ -1,8 +1,8 @@
 <p align="left">
-  <img alt="header" src="https://shieldcn.dev/header/transparent.svg?mode=dark&amp;align=left&amp;border=false&amp;image=https%3A%2F%2Fremocn.dev%2Fhero.png&amp;overlay=0" />
+  <img alt="header" src="https://shieldcn.dev/header/transparent.svg?mode=dark&amp;align=left&amp;border=false&amp;image=https%3A%2F%2Fremocn.dev%2Frender-sdk.png&amp;overlay=0" />
 </p>
 
-![badge group](https://shieldcn.dev/group/npm/@remotion/render-sdk/+npm/license/@remotion/render-sdk/+npm/types/@remotion/render-sdk/.svg?variant=secondary)
+![badge group](https://shieldcn.dev/group/npm/@remocn/render-sdk/+npm/license/@remocn/render-sdk/.svg?variant=secondary)
 
 # Render SDK
 

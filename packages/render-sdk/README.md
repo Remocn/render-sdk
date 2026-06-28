@@ -1,4 +1,10 @@
-# @remocn/render-sdk
+<p align="left">
+  <img alt="header" src="https://shieldcn.dev/header/transparent.svg?mode=dark&amp;align=left&amp;border=false&amp;image=https%3A%2F%2Fremocn.dev%2Frender-sdk.png&amp;overlay=0" />
+</p>
+
+![badge group](https://shieldcn.dev/group/npm/@remocn/render-sdk/+npm/license/@remocn/render-sdk/.svg?variant=secondary)
+
+Render SDK
 
 Backend-swappable render engine for [Remotion](https://remotion.dev). One API, two execution targets: a local Node.js server and AWS Lambda. Swap adapters without changing application code.
 
