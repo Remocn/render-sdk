@@ -1,5 +1,5 @@
 ---
-"@remocn/render-sdk": major
+"@remocn/render-sdk": minor
 ---
 
 docs: update README

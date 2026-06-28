@@ -9,14 +9,28 @@
     "directory": "packages/render-sdk"
   },
   "homepage": "https://github.com/Remocn/render-sdk#readme",
-  "bugs": { "url": "https://github.com/Remocn/render-sdk/issues" },
+  "bugs": {
+    "url": "https://github.com/Remocn/render-sdk/issues"
+  },
   "type": "module",
   "sideEffects": false,
-  "files": ["dist", "README.md"],
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-    "./server": { "types": "./dist/server/index.d.ts", "import": "./dist/server/index.js" },
-    "./lambda": { "types": "./dist/lambda/index.d.ts", "import": "./dist/lambda/index.js" }
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.js"
+    },
+    "./lambda": {
+      "types": "./dist/lambda/index.d.ts",
+      "import": "./dist/lambda/index.js"
+    }
   },
   "scripts": {
     "build": "bun run scripts/build.ts",
@@ -35,8 +49,12 @@
     "@remotion/lambda": ">=4.0.0"
   },
   "peerDependenciesMeta": {
-    "@remotion/renderer": { "optional": true },
-    "@remotion/lambda": { "optional": true }
+    "@remotion/renderer": {
+      "optional": true
+    },
+    "@remotion/lambda": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.16",
@@ -45,5 +63,7 @@
     "@types/bun": "latest",
     "typescript": "^6.0.3"
   },
-  "publishConfig": { "access": "public" }
+  "publishConfig": {
+    "access": "public"
+  }
 }
