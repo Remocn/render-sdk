@@ -1,6 +1,6 @@
 {
   "name": "@remocn/render-sdk",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Backend-swappable render engine for Remotion (server + AWS Lambda).",
   "license": "MIT",
   "repository": {
