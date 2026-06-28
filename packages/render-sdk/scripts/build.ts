@@ -24,7 +24,9 @@ interface PackageJson {
   dependencies?: Record<string, string>;
 }
 
-const pkg = (await Bun.file(join(pkgRoot, "package.json")).json()) as PackageJson;
+const pkg = (await Bun.file(
+  join(pkgRoot, "package.json"),
+).json()) as PackageJson;
 
 /**
  * Map each export's `import` dist path back to its source entry under `src/`.

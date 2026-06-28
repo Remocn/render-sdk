@@ -24,7 +24,8 @@ const HANDLE = encodeLambdaHandle({
   ext: "mp4",
 });
 
-const OUTPUT_URL = "https://remotionlambda-useast1-abc.s3.amazonaws.com/renders/rid-1/out.mp4";
+const OUTPUT_URL =
+  "https://remotionlambda-useast1-abc.s3.amazonaws.com/renders/rid-1/out.mp4";
 
 /** Saved reference so we can restore after each test. */
 const originalFetch = globalThis.fetch;
@@ -88,7 +89,11 @@ describe("RenderLambda.download", () => {
       makeProgress({ done: true, outputFile: OUTPUT_URL });
 
     globalThis.fetch = (async () =>
-      ({ ok: false, status: 500, body: null }) as unknown as Response) as unknown as typeof globalThis.fetch;
+      ({
+        ok: false,
+        status: 500,
+        body: null,
+      }) as unknown as Response) as unknown as typeof globalThis.fetch;
 
     const adapter = RenderLambda(CONFIG);
     await expectRenderErrorCode(adapter.download(HANDLE), "adapter_error");
@@ -99,7 +104,11 @@ describe("RenderLambda.download", () => {
       makeProgress({ done: true, outputFile: OUTPUT_URL });
 
     globalThis.fetch = (async () =>
-      ({ ok: true, status: 200, body: null }) as unknown as Response) as unknown as typeof globalThis.fetch;
+      ({
+        ok: true,
+        status: 200,
+        body: null,
+      }) as unknown as Response) as unknown as typeof globalThis.fetch;
 
     const adapter = RenderLambda(CONFIG);
     await expectRenderErrorCode(adapter.download(HANDLE), "adapter_error");

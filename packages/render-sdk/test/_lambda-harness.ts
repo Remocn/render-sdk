@@ -31,7 +31,9 @@ export type ProgressOverride = Partial<{
  * `getRenderProgress` is mocked, so the adapter never sees the other ~30
  * `RenderProgress` fields — modelling them here would be dead weight.
  */
-export function makeProgress(partial?: ProgressOverride): Record<string, unknown> {
+export function makeProgress(
+  partial?: ProgressOverride,
+): Record<string, unknown> {
   return {
     done: false,
     overallProgress: 0,
@@ -46,8 +48,12 @@ export function makeProgress(partial?: ProgressOverride): Record<string, unknown
 
 /** Per-test mock implementations, reassigned in each `test`. */
 export const lambda = {
-  renderImpl: async (_o: unknown): Promise<{ renderId: string; bucketName: string }> =>
-    ({ renderId: "rid-1", bucketName: "remotionlambda-useast1-abc" }),
+  renderImpl: async (
+    _o: unknown,
+  ): Promise<{ renderId: string; bucketName: string }> => ({
+    renderId: "rid-1",
+    bucketName: "remotionlambda-useast1-abc",
+  }),
   progressImpl: async (_o: unknown): Promise<Record<string, unknown>> =>
     makeProgress(),
 };

@@ -15,7 +15,8 @@ const { RenderLambda } = await import("../src/lambda");
 const CONFIG = {
   region: "us-east-1" as const,
   functionName: "remotion-render-fn",
-  serveUrl: "https://remotionlambda-useast1-abc.s3.us-east-1.amazonaws.com/sites/my-site/index.html",
+  serveUrl:
+    "https://remotionlambda-useast1-abc.s3.us-east-1.amazonaws.com/sites/my-site/index.html",
 };
 
 beforeEach(() => {
@@ -33,7 +34,8 @@ describe("RenderLambda.start", () => {
       capturedInput = o;
       return { renderId: "rid-1", bucketName: "remotionlambda-useast1-abc" };
     };
-    lambda.progressImpl = async () => makeProgress({ done: true, outputFile: "https://cdn/out.mp4" });
+    lambda.progressImpl = async () =>
+      makeProgress({ done: true, outputFile: "https://cdn/out.mp4" });
 
     const adapter = RenderLambda(CONFIG);
     await adapter.start({ compositionId: "Main" });
@@ -100,13 +102,16 @@ describe("RenderLambda.start", () => {
     };
 
     const adapter = RenderLambda(CONFIG);
-    await adapter.start({ compositionId: "Main" }, {
-      framesPerLambda: 40,
-      webhook: { url: "https://hook.example.com", secret: null },
-      privacy: "public",
-      outName: "my-output.mp4",
-      maxRetries: 2,
-    });
+    await adapter.start(
+      { compositionId: "Main" },
+      {
+        framesPerLambda: 40,
+        webhook: { url: "https://hook.example.com", secret: null },
+        privacy: "public",
+        outName: "my-output.mp4",
+        maxRetries: 2,
+      },
+    );
 
     expect(capturedInput).toMatchObject({
       framesPerLambda: 40,
@@ -125,13 +130,20 @@ describe("RenderLambda.start", () => {
     };
 
     const adapter = RenderLambda(CONFIG);
-    await adapter.start({ compositionId: "Main", serveUrl: "https://custom-serve.com" });
+    await adapter.start({
+      compositionId: "Main",
+      serveUrl: "https://custom-serve.com",
+    });
 
-    expect((capturedInput as { serveUrl: string }).serveUrl).toBe("https://custom-serve.com");
+    expect((capturedInput as { serveUrl: string }).serveUrl).toBe(
+      "https://custom-serve.com",
+    );
   });
 
   test("wraps renderMediaOnLambda rejection as RenderError render_failed", async () => {
-    lambda.renderImpl = async () => { throw new Error("Something went wrong"); };
+    lambda.renderImpl = async () => {
+      throw new Error("Something went wrong");
+    };
 
     const adapter = RenderLambda(CONFIG);
     await expectRenderErrorCode(

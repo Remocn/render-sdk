@@ -48,9 +48,13 @@ export async function waitForCompletion(
   handle: RenderHandle,
   opts: WaitOptions = {},
 ): Promise<RenderState> {
-  const { onProgress, intervalMs = DEFAULT_INTERVAL_MS, signal, timeoutMs } = opts;
-  const deadline =
-    timeoutMs === undefined ? undefined : Date.now() + timeoutMs;
+  const {
+    onProgress,
+    intervalMs = DEFAULT_INTERVAL_MS,
+    signal,
+    timeoutMs,
+  } = opts;
+  const deadline = timeoutMs === undefined ? undefined : Date.now() + timeoutMs;
 
   while (true) {
     if (signal?.aborted) {

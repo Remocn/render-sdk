@@ -3,6 +3,13 @@
   "version": "0.0.0",
   "description": "Backend-swappable render engine for Remotion (server + AWS Lambda).",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Remocn/render-sdk.git",
+    "directory": "packages/render-sdk"
+  },
+  "homepage": "https://github.com/Remocn/render-sdk#readme",
+  "bugs": { "url": "https://github.com/Remocn/render-sdk/issues" },
   "type": "module",
   "sideEffects": false,
   "files": ["dist", "README.md"],
@@ -15,6 +22,9 @@
     "build": "bun run scripts/build.ts",
     "dev": "bun run scripts/build.ts --watch",
     "test": "bun test",
+    "lint": "biome ci .",
+    "format": "biome check --write .",
+    "typecheck": "tsc --noEmit",
     "types": "tsc --noEmit"
   },
   "dependencies": {
@@ -29,6 +39,7 @@
     "@remotion/lambda": { "optional": true }
   },
   "devDependencies": {
+    "@biomejs/biome": "2.4.16",
     "@remotion/renderer": ">=4.0.0",
     "@remotion/lambda": ">=4.0.0",
     "@types/bun": "latest",

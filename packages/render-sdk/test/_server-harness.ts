@@ -7,11 +7,10 @@
  * `selectImpl` / `renderImpl` per test.
  */
 
+import { mock } from "bun:test";
 import { mkdtempSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-
-import { mock } from "bun:test";
 
 import { RenderError } from "../src/errors";
 import { encodeServerHandle } from "../src/handle";

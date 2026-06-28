@@ -48,9 +48,7 @@ describe("InMemoryStore", () => {
     await store.update(handle, { status: "rendering", progress: 0.5 });
 
     const got = await store.get(handle);
-    expect(got).toEqual(
-      sampleRecord({ status: "rendering", progress: 0.5 }),
-    );
+    expect(got).toEqual(sampleRecord({ status: "rendering", progress: 0.5 }));
   });
 
   test("update on an unknown handle throws RenderError not_found", async () => {
@@ -89,7 +87,10 @@ describe("InMemoryStore", () => {
     const store = InMemoryStore();
     const handle = encodeServerHandle("job-4");
     await store.create(handle, sampleRecord({ progress: 0 }));
-    await store.create(handle, sampleRecord({ progress: 0.9, status: "rendering" }));
+    await store.create(
+      handle,
+      sampleRecord({ progress: 0.9, status: "rendering" }),
+    );
 
     const got = await store.get(handle);
     expect(got?.progress).toBe(0.9);

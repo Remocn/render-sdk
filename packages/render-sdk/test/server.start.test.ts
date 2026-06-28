@@ -108,7 +108,10 @@ describe("RenderServer.start", () => {
     };
 
     const adapter = RenderServer({ serveUrl: "http://b", workDir, store });
-    const handle = await adapter.start({ compositionId: "Main", codec: "h264" });
+    const handle = await adapter.start({
+      compositionId: "Main",
+      codec: "h264",
+    });
     await flush();
 
     expect(seenOutput).toBe(`${workDir}/${handle}.mp4`);
