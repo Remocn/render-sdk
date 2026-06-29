@@ -138,3 +138,6 @@ const url   = await sdk.getUrl(handle);          // the S3 output URL
 | `waitForCompletion(handle, opts?)` | `RenderState` | Polls with `onProgress` / `timeoutMs` / `signal`; throws on render failure. |
 | `getUrl(handle)` | `string` | Public URL or S3 URL. Valid once `status === "done"`. |
 | `download(handle)` | `ReadableStream` | Web stream of the finished file (disk or S3). |
+
+
+> Remocn Render-SDK is an independent, open-source community project and is not affiliated with Remotion
